@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: Garcia
+    given-names: Guilherme D.
+    email: guilherme.garcia@lli.ulaval.ca
+    orcid: https://orcid.org/0000-0003-1412-3856
+title: "synkit: a toolkit to create syntactic representations in Typst"
+version: 0.0.1
+url: "https://github.com/guilhermegarcia/synkit"
+repository-code: "https://github.com/guilhermegarcia/synkit"
+license: MIT
+keywords:
+  - syntax
+  - linguistics
+  - typst
+  - semantics
+  - glossing
+abstract: "Syntax toolkit for Typst, providing phrase-structure trees from bracket notation, movement arrows, multidominance, semantic annotation, cross-tree equivalence lines, numbered examples, and interlinear glosses."

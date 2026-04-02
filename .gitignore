@@ -1,0 +1,18 @@
+# macOS
+.DS_Store
+
+# Local references
+references.bib
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Typst build artifacts
+*.log
+
+# Generated badges
+zenodo-badge.svg
