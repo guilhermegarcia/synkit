@@ -9,8 +9,8 @@
 <div align="center">
 
 ![Typst Package](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fguilhermegarcia%2Fsynkit%2Fmain%2Ftypst.toml&query=%24.package.version&prefix=v&logo=typst&label=package&color=239DAD)
-![License](https://img.shields.io/badge/license-MIT-blue)
-[![Manual](https://img.shields.io/badge/manual-.pdf-purple)](synkit.pdf)
+![MIT license badge](https://img.shields.io/badge/license-MIT-blue)
+[![PDF manual badge](https://img.shields.io/badge/manual-.pdf-purple)](synkit.pdf)
 
 </div>
 
@@ -32,29 +32,29 @@ Here are some examples illustrating this philosophy.
 <table>
 <tr>
   <td align="center" width="33%">
-    <a href="gallery/tree_1.typ"><img src="gallery/tree_1.png" width="100%" alt="Tree example 1"></a>
+    <a href="gallery/tree_1.typ"><img src="gallery/tree_1.png" width="100%" alt="Syntax tree with movement arrows"></a>
     <br><sub>Tree with arrows indicating movement</sub>
   </td>
   <td align="center" width="33%">
-    <a href="gallery/tree_2.typ"><img src="gallery/tree_2.png" width="100%" alt="Tree example 2"></a>
+    <a href="gallery/tree_2.typ"><img src="gallery/tree_2.png" width="100%" alt="Syntax tree with semantic annotation and multidominance"></a>
     <br><sub>Semantic annotation and multidominance</sub>
   </td>
   <td align="center" width="33%">
-    <a href="gallery/tree_3.typ"><img src="gallery/tree_3.png" width="100%" alt="Tree example 3"></a>
+    <a href="gallery/tree_3.typ"><img src="gallery/tree_3.png" width="100%" alt="Two syntax trees linked by equivalence lines"></a>
     <br><sub>Equivalences between two different trees</sub>
   </td>
 </tr>
 <tr>
   <td align="center">
-    <a href="gallery/tree_4.typ"><img src="gallery/tree_4.png" width="100%" alt="Tree example 4"></a>
+    <a href="gallery/tree_4.typ"><img src="gallery/tree_4.png" width="100%" alt="Styled syntax tree with color and emoji"></a>
     <br><sub>Adjust color, font, and add emojis for less serious trees</sub>
   </td>
   <td align="center">
-    <a href="gallery/tree_5.typ"><img src="gallery/tree_5.png" width="100%" alt="Tree example 5"></a>
+    <a href="gallery/tree_5.typ"><img src="gallery/tree_5.png" width="100%" alt="Numbered example with inline movement notation"></a>
     <br><sub>In-line movement with minimal syntax</sub>
   </td>
   <td align="center">
-    <a href="gallery/tree_6.typ"><img src="gallery/tree_6.png" width="100%" alt="Tree example 6"></a>
+    <a href="gallery/tree_6.typ"><img src="gallery/tree_6.png" width="100%" alt="Numbered examples and interlinear glosses"></a>
     <br><sub>Examples and glosses</sub>
   </td>
 </tr>
