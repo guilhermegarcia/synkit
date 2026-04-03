@@ -303,13 +303,13 @@ Any questions, comments or suggestions should be posted to the repository below 
 
 This vignette introduces #logo and its functions. If you haven't used Typst yet and want to follow along, go to #link("https://typst.app")[Typst.app] to use their online editor. You may want to check their own #link("https://typst.app/docs/tutorial/")[tutorial] too (I have an introductory YouTube series #link("https://www.youtube.com/playlist?list=PL3Qku9eEGkK25vbfHx_YUpvNNogYAqt3N")[here]). This is *not* an introduction to Typst, but see @app-editor and @app-packages in the appendix for some useful info. The GitHub repository for the package can be found at `guilhermegarcia/synkit`. Comments and suggestions are welcome, as are bug reports (open an issue in the package's repository). As with #phonokit, the main goals of #logo are to #smallcaps("minimize effort") and #smallcaps("maximize quality"). In a nutshell, we want more intuitive and parsimonious code than #LaTeX without compromising the quality of what is created.
 
-There are least two fantastic packages for #LaTeX to build syntax trees: `tikz-qtree` @tikz-qtree and `forest` @forest. For Typst, some options also exist: `syntree`, by Lynn (see #link("https://typst.app/universe/package/syntree")[here]) and `arborly`, by Max Pearce Basman (see #link("https://typst.app/universe/package/arborly")[here]). Both Typst options are indeed easier to use than anything we have for #LaTeX, but they're also more limited. Thus, as of March 2026, we don't really have a syntax package that ticks enough boxes for people to consider migrating to Typst from #LaTeX. This is the gap that #logo addresses. My main goal here is to be as intuitive as possible while keeping the key features of packages used in #LaTeX. Eventually, #logo should be able to cover everything that you need in syntax (which will likely be a subset of what the #LaTeX packages in question can do). I have some opinions about how an intuitive function should work, so a lot of what follows is subjective --- this is also something I've applied to my other package, #phonokit. I realize that linguists can't simply migrate to Typst without enough coverage, and that coverage must include things like syntax trees, of course.
+There are at least two fantastic packages for #LaTeX to build syntax trees: `tikz-qtree` @tikz-qtree and `forest` @forest. For Typst, some options also exist: `syntree`, by Lynn (see #link("https://typst.app/universe/package/syntree")[here]) and `arborly`, by Max Pearce Basman (see #link("https://typst.app/universe/package/arborly")[here]). Both Typst options are indeed easier to use than anything we have for #LaTeX, but they're also more limited. Thus, as of March 2026, we don't really have a syntax package that ticks enough boxes for people to consider migrating to Typst from #LaTeX. This is the gap that #logo addresses. My main goal here is to be as intuitive as possible while keeping the key features of packages used in #LaTeX. Eventually, #logo should be able to cover everything that you need in syntax (which will likely be a subset of what the #LaTeX packages in question can do). I have some opinions about how an intuitive function should work, so a lot of what follows is subjective --- this is also something I've applied to my other package, #phonokit. I realize that linguists can't simply migrate to Typst without enough coverage, and that coverage must include things like syntax trees, of course.
 
 I am not a syntactician myself. Thus, if this package ends up being adopted by enough linguists, it would be ideal to have more people in syntax to join the project to maintain the existing functions and features.
 
 == Installation <sec-installation>
 
-Typst packages are always loaded the same way: using the `#import` function at the top of your `typ` document, as shown in @code-import1. Replace `X.X.X` with the version you wish to import. The `*` simply states that we want to import all functions from the package in question. See package's page on Typst's website #link("https://typst.app/universe/package/synkit")[here].
+Typst packages are always loaded the same way: using the `#import` function at the top of your `typ` document, as shown in @code-import1. Replace `X.X.X` with the version you wish to import. The `*` simply states that we want to import all functions from the package in question. See the package's page on Typst's website #link("https://typst.app/universe/package/synkit")[here].
 
 #figure(
   caption: [Loading a package in Typst using the official repository],
@@ -466,7 +466,7 @@ How can we manually add triangles? If the function is successful, you will likel
 
 = Arrows <sec-arrows>
 
-The example below comes from #cite(<carnie2013syntax>, supplement: "p. 261", form: "prose"). Arrows are added with the `arrows` parameter, which allows the user to specify `from` and `to` for any given arrow (this uses the automatically created labels already discussed). On top of that, the user can choose `color`, `line-width`, `dash`, and decide whether or not to curve the arrow. By default, arrows are rectangular (see gray dotted arrow in @fig-tree-7) --- multiple rectangular arrows have their heights adjusted automatically to avoid overlapping lines. This can be changed with the parameter `curve: true` (outside `arrows`). But if the user provides `bend` and `shift` inside `arrows`, `curved` will be assumed to be `true`. This is what we see in @fig-tree-7.
+The example below comes from #cite(<carnie2013syntax>, supplement: "p. 261", form: "prose"). Arrows are added with the `arrows` parameter, which allows the user to specify `from` and `to` for any given arrow (this uses the automatically created labels already discussed). On top of that, the user can choose `color`, `line-width`, `dash`, and decide whether or not to curve the arrow. By default, arrows are rectangular (see gray dotted arrow in @fig-tree-7) --- multiple rectangular arrows have their heights adjusted automatically to avoid overlapping lines. This can be changed with the parameter `curved: true` (outside `arrows`). But if the user provides `bend` and `shift` inside `arrows`, `curved` will be assumed to be `true`. This is what we see in @fig-tree-7.
 
 You will notice that some labels in @code-tree-7 have a numeric suffix: `trace3-198`. That suffix is optional: it lets the user define exactly _where_ the arrow should depart from (or arrive at, when it's used in `to`). Imagine an invisible ellipse surrounding each node's text. The numeric suffix represents a position on that ellipse in degrees, following standard trigonometric convention: 0° is east (right), 90° is north (up), 180° is west (left), and 270° is south (down). For example, `trace3-198` means "start the arrow from the 198° position around the `trace3` node" — slightly south of due west. Without a degree suffix, arrows use a default exit point in the tree's growth direction (typically below the text for downward trees), as can be seen in the gray dotted arrow once again --- see first line inside `arrows` in @code-tree-7. This gives the user a higher level of control overall.
 
@@ -698,7 +698,7 @@ A final example includes longer annotation, from #cite(<fox2016qr>, form: "prose
               ),
               (
                 "IP2",
-                [$lambda$_x_ : _x_ has a has a unique maximal woman part \
+                [$lambda$_x_ : _x_ has a unique maximal woman part \
                   and a unique maximal man part. \ the woman part of x is smiling and \
                   the man part of x is frowning],
               ),
@@ -748,7 +748,7 @@ A final example includes longer annotation, from #cite(<fox2016qr>, form: "prose
             ),
             (
               "IP2",
-              [$lambda$_x_ : _x_ has a has a unique maximal woman part \
+              [$lambda$_x_ : _x_ has a unique maximal woman part \
                 and a unique maximal man part. \
                 the woman part of x is smiling and \
                 the man part of x is frowning],
@@ -913,7 +913,7 @@ By default, stacked trees will use `bottom: true` to ensure that alignment is op
 
 = In-line movement <sec-inline>
 
-In-line representations also make use of automatic labelling. Every word we add to a sentence is its own label. As a result, we can easily draw an arrow from `who2` to `who1` in @fig-in-line. Because the arrows extend below the text baseline, they may overlap with subsequent content. Setting `protect: true` reserves vertical space below the output to prevent this. By default, `protect` is `false`, which is the correct setting when `#move()` is placed inside a table cell (e.g., in numbered examples with `#eg()`), where extra height would misalign adjacent cells --- see @sec-examples below. Because this these are representations that are almost always used in the context of a numbered example, `protect: false` is favoured.
+In-line representations also make use of automatic labelling. Every word we add to a sentence is its own label. As a result, we can easily draw an arrow from `who2` to `who1` in @fig-in-line. Because the arrows extend below the text baseline, they may overlap with subsequent content. Setting `protect: true` reserves vertical space below the output to prevent this. By default, `protect` is `false`, which is the correct setting when `#move()` is placed inside a table cell (e.g., in numbered examples with `#eg()`), where extra height would misalign adjacent cells --- see @sec-examples below. Because these representations are almost always used in the context of a numbered example, `protect: false` is favoured.
 
 The examples below demonstrate how to change line styles for arrows and how to delink a given arrow using its position. For example, if `delinks: (0,)`, a delink is added to the first movement arrow added to the code --- see last two examples in @fig-in-line.
 
@@ -1484,7 +1484,7 @@ Breaking lines is easy with `\\n`. This avoids having phrases that are too wide.
 
 == Formatting
 
-Before we proceed to arrows in @sec-arrows, let's explore some important consequences of using a string as our main input. What if we want to use bold, italics, small caps, Greek letters, etc.? If you have used Typst before, you know that you can simply add whatever symbol you need directly into the document (UTF-8 is natively accepted). But `#tree()` also has some presets to make this easier. @fig-tree-5 shows how to adjust the formatting of strings in the tree. Greek letters are interpretable as long as you use `\\`. For italics, you use `*cat*`; for bold, `**mat**`, for small caps, `@sat@`. You can also strike through text with `~` (see @fig-tree-5). Finally, subscripts and superscripts can be easily added with `_` and `^`, respectively. An additional parameter, `highlight`, exists for drawing a rectangle around any given node (equivalent to `\node[draw]` in `tikz-qtree`)---we refer to `P` as `"p1"` in @code-tree-5 ("first [and only] P from the top of the tree").
+Let's now explore some important consequences of using a string as our main input. What if we want to use bold, italics, small caps, Greek letters, etc.? If you have used Typst before, you know that you can simply add whatever symbol you need directly into the document (UTF-8 is natively accepted). But `#tree()` also has some presets to make this easier. @fig-tree-5 shows how to adjust the formatting of strings in the tree. Greek letters are interpretable as long as you use `\\`. For italics, you use `*cat*`; for bold, `**mat**`, for small caps, `@sat@`. You can also strike through text with `~` (see @fig-tree-5). Finally, subscripts and superscripts can be easily added with `_` and `^`, respectively. An additional parameter, `highlight`, exists for drawing a rectangle around any given node (equivalent to `\node[draw]` in `tikz-qtree`)---we refer to `P` as `"p1"` in @code-tree-5 ("first [and only] P from the top of the tree").
 
 #align(center)[
   #grid(
@@ -1555,7 +1555,7 @@ Trees can also change direction with the `direction` parameter. By default, `dir
 
 == Sizing
 
-Sizing and spacing are two key parameters in any tree. By default, the content of each node has 80% of the size of the node itself, but this can be changed with the `content-size` parameter (defaults to `0.8`). @fig-tree-sizing uses `content-size: 1` to make both nodes and content to have the exact same size. In @code-tree-sizing, you will also find two other parameters: `drop` and `spread`. These help you set vertical and horizontal spacing for the tree. If you wish to change the size of nodes, `node-size` is also available.
+Sizing and spacing are two key parameters in any tree. By default, the content of each node has 80% of the size of the node itself, but this can be changed with the `content-size` parameter (defaults to `0.8`). @fig-tree-sizing uses `content-size: 1.2` to make the content larger than the nodes. In @code-tree-sizing, you will also find two other parameters: `drop` and `spread`. These help you set vertical and horizontal spacing for the tree. If you wish to change the size of nodes, `node-size` is also available.
 
 #align(center)[
   #grid(
@@ -1968,5 +1968,3 @@ Example from #cite(<elliott2022and>, form: "prose", supplement: "p. 10") showing
 
 
 
-
-// TODO: tree without nodes (straight lines) -> this is a different animal, kinda
