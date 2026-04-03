@@ -1640,9 +1640,10 @@
             let tri-text-gap = if is-bottom-aligned { 0 } else if is-horiz { 0.80 } else { 0.05 }
             let tlx2 = e.at("tri-x", default: e.x)
             let tly2 = e.at("tri-y")
-            // Bottom-aligned: use "center" to match regular leaf alignment.
-            // Otherwise: anchor at top so multi-line content grows downward only.
-            let tri-anchor = if is-bottom-aligned { "center" } else if direction == "up" { "south" } else if (
+            // Bottom-aligned triangles should use the same directional anchoring
+            // as regular terminals so mixed triangle/non-triangle leaves keep the
+            // same shape-to-text gap.
+            let tri-anchor = if direction == "up" { "south" } else if (
               direction == "down"
             ) { "north" } else if (
               direction == "right"
@@ -2378,7 +2379,7 @@
               let tri-text-gap = if is-bottom-aligned { 0 } else if is-horiz { 0.80 } else { 0.05 }
               let tlx2 = e.at("tri-x", default: e.x)
               let tly2 = e.at("tri-y")
-              let tri-anchor = if is-bottom-aligned { "center" } else if direction == "up" { "south" } else if (
+              let tri-anchor = if direction == "up" { "south" } else if (
                 direction == "down"
               ) { "north" } else if direction == "right" { "west" } else { "east" }
               content((tlx2 + gdx * tri-text-gap, tly2 + gdy * tri-text-gap), tri-body, anchor: tri-anchor)
