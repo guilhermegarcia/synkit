@@ -37,7 +37,7 @@
 //     - 'She likes apples'
 //   ] <eg-multi>
 
-#import "eg.typ": example-counter, subex-counter, letters
+#import "eg.typ": example-counter, letters, subex-counter
 
 // Extract list items from body (may be nested in a sequence)
 #let _extract-items(body) = {
@@ -56,14 +56,11 @@
   if c.has("children") {
     let result = ""
     for child in c.children {
-      if child.has("text") { result += child.text }
-      else if child.has("children") {
+      if child.has("text") { result += child.text } else if child.has("children") {
         for grandchild in child.children {
-          if grandchild.has("text") { result += grandchild.text }
-          else { result += " " }
+          if grandchild.has("text") { result += grandchild.text } else { result += " " }
         }
-      }
-      else { result += " " }
+      } else { result += " " }
     }
     return result
   }
@@ -100,9 +97,7 @@
 
 // Tokenize alignment lines into arrays of tokens
 #let _tokenize-lines(line-strings) = {
-  line-strings.map(line =>
-    line.split(regex("\\s+")).filter(s => s != "")
-  )
+  line-strings.map(line => line.split(regex("\\s+")).filter(s => s != ""))
 }
 
 // Build a full gloss grid: optional prefix columns + aligned tokens + free translation row
@@ -216,7 +211,7 @@
     let sub-blocks = ()
     for (gi, group) in groups.enumerate() {
       // Build prefix cells: number (first row only) + letter (first row only)
-      let n-align-lines = group.len() - 1  // all but free translation
+      let n-align-lines = group.len() - 1 // all but free translation
       let prefix = ()
       for row in range(n-align-lines) {
         if row == 0 {
@@ -249,14 +244,15 @@
           }
           prefix.push(letter-cell)
         } else {
-          prefix.push([])  // empty number
-          prefix.push([])  // empty letter
+          prefix.push([]) // empty number
+          prefix.push([]) // empty letter
         }
       }
 
       let group-title = if gi == 0 { title } else { none }
       sub-blocks.push(_build-full-gloss(
-        group, spacing,
+        group,
+        spacing,
         title: group-title,
         prefix-cols: 2,
         prefix-cells: prefix,
@@ -282,7 +278,8 @@
     }
 
     _build-full-gloss(
-      items, spacing,
+      items,
+      spacing,
       title: title,
       prefix-cols: 1,
       prefix-cells: prefix,
