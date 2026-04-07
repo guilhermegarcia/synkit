@@ -247,13 +247,16 @@ _A toolkit to create syntactic representations in Typst_
   // ],
 )
 
-#v(10em)
+#v(18em)
 
 #abstract[
   #logo is a Typst package for drawing syntax trees from bracket notation. It supports a wide range of features, including triangles, arrows, movement traces, multidominance, semantic annotation, cross-tree equivalence lines, and formatting options for quick adjustments. Trees can be drawn in four directions (down, up, left, right), and multiple trees can be stacked with shared arrow connections. Besides trees, the package also offers functions for numbered examples and glosses. This document serves as the official documentation for #logo, providing examples and explanations for all available parameters and features.
 ]
 
-#v(3em)
+
+#v(1fr)
+
+#h(1fr)_Last updated: #datetime.today().display()_
 
 // #align(center, text(size: 0.85em)[
 //   How to keep track of updates? See table of contents on the next page.
@@ -262,7 +265,7 @@ _A toolkit to create syntactic representations in Typst_
 //
 //
 
-// #pagebreak()
+#pagebreak()
 
 #heading(numbering: none, outlined: false)[Questions, suggestions, bugs]
 
@@ -277,6 +280,7 @@ Any questions, comments or suggestions should be posted to the repository below 
 #fa-comment() #link("https://github.com/guilhermegarcia/synkit/discussions")[`guilhermegarcia/synkit/discussions`]
 
 #fa-bug() #link("https://github.com/guilhermegarcia/synkit/issues")[`guilhermegarcia/synkit/issues`]
+
 
 #heading(numbering: none, outlined: false)[Note on development]
 
@@ -303,7 +307,7 @@ Any questions, comments or suggestions should be posted to the repository below 
 
 This vignette introduces #logo and its functions. If you haven't used Typst yet and want to follow along, go to #link("https://typst.app")[Typst.app] to use their online editor. You may want to check their own #link("https://typst.app/docs/tutorial/")[tutorial] too (I have an introductory YouTube series #link("https://www.youtube.com/playlist?list=PL3Qku9eEGkK25vbfHx_YUpvNNogYAqt3N")[here]). This is *not* an introduction to Typst, but see @app-editor and @app-packages in the appendix for some useful info. The GitHub repository for the package can be found at `guilhermegarcia/synkit`. Comments and suggestions are welcome, as are bug reports (open an issue in the package's repository). As with #phonokit, the main goals of #logo are to #smallcaps("minimize effort") and #smallcaps("maximize quality"). In a nutshell, we want more intuitive and parsimonious code than #LaTeX without compromising the quality of what is created.
 
-There are at least two fantastic packages for #LaTeX to build syntax trees: `tikz-qtree` @tikz-qtree and `forest` @forest. For Typst, some options also exist: `syntree`, by Lynn (see #link("https://typst.app/universe/package/syntree")[here]) and `arborly`, by Max Pearce Basman (see #link("https://typst.app/universe/package/arborly")[here]). Both Typst options are indeed easier to use than anything we have for #LaTeX, but they're also more limited. Thus, as of March 2026, we don't really have a syntax package that ticks enough boxes for people to consider migrating to Typst from #LaTeX. This is the gap that #logo addresses. My main goal here is to be as intuitive as possible while keeping the key features of packages used in #LaTeX. Eventually, #logo should be able to cover everything that you need in syntax (which will likely be a subset of what the #LaTeX packages in question can do). I have some opinions about how an intuitive function should work, so a lot of what follows is subjective --- this is also something I've applied to my other package, #phonokit. I realize that linguists can't simply migrate to Typst without enough coverage, and that coverage must include things like syntax trees, of course.
+There are at least two fantastic packages for #LaTeX to build syntax trees: `tikz-qtree` @tikz-qtree and `forest` @forest. For Typst, some options also exist: `syntree`, by Lynn (see #link("https://typst.app/universe/package/syntree")[here]) and `arborly`, by Max Pearce Basman (see #link("https://typst.app/universe/package/arborly")[here]). Both Typst options are indeed easier to use than anything we have for #LaTeX, but they're also more limited. Thus, as of March 2026, we don't really have a syntax package that ticks enough boxes for people to consider migrating to Typst from #LaTeX. This is the gap that #logo addresses. My main goal here is to be as intuitive as possible while keeping the key features of packages used in #LaTeX. Eventually, #logo should be able to cover everything that you need in syntax (which will still be a subset of what the ~#LaTeX packages in question can do, simply because the vast majority of people don't use 100% of what `tikz` can offer in theory, for example). I have some opinions about how an intuitive function should work, so a lot of what follows is subjective --- this is also something I've applied to my other package, #phonokit. I realize that linguists can't simply migrate to Typst without enough coverage, and that coverage must include things like syntax trees, of course.
 
 I am not a syntactician myself. Thus, if this package ends up being adopted by enough linguists, it would be ideal to have more people in syntax to join the project to maintain the existing functions and features.
 
@@ -400,7 +404,7 @@ Next, let's complete the tree following the example in Chiang's tutorial. In @fi
   )
 ]
 
-What about adding a roof for a given XP? You can let the function decide for you whether a triangle is needed _or_ you can add it yourself via the parameter `triangle`, which we'll discuss shortly. Examine @code-tree-3: the sequence `[NP the cat]` automatically triggers a triangle because we go from phrase to content without intermediate nodes. This works because the function uses regular expressions to search for a given pattern. Of course, time will tell how reliable this is, but thus far it's been working as it should.
+What about adding a roof for a given XP? You can let the function decide for you whether a triangle is needed _or_ you can add it yourself via the parameter `triangle`, which we'll discuss shortly. Examine @code-tree-3: the sequence `[NP the cat]` automatically triggers a triangle because we go from phrase to content without intermediate nodes. This works because the function uses regular expressions to search for a given pattern. Time will tell how reliable this is, but thus far it's been working as it should.
 
 #align(center)[
   #grid(
@@ -430,7 +434,7 @@ What about adding a roof for a given XP? You can let the function decide for you
   )
 ]
 
-How can we manually add triangles? If the function is successful, you will likely never need to do this. But the option is there, and it will help us understand a key element in #logo, namely, _labels_. To demonstrate how this works, let's pretend we want to have a triangle under the head `N` (for whatever reason), which is not a context that triggers the automatic drawing just seen. The parameter `triangle` allows you to tell the function which location in the tree should be designed with a triangle. The key here is that labels exist the moment you create a node in the tree: you never have to set labels yourself. In @fig-tree-4, for example, we want a triangle under `N`. This is the first `N` from the top that we see in the tree (well, the only one here). Thus, we must simply state `"n1"` and the `triangle` parameter will target the correct location. This is shown in @code-tree-4. As already mentioned, you should never need to use the `triangle` parameter, but it's there anyway. The notion of automatic labelling is essential for when we discuss arrows, naturally.
+How can we manually add triangles? If the function is successful, you will likely never need to do this. But the option is there, and it will help us understand a key element in #logo, namely, _labels_. To demonstrate how this works, let's pretend we want to have a triangle under the head `N` (for whatever reason), which is not a context that triggers the automatic drawing just seen. The parameter `triangle` allows you to tell the function which location in the tree should be designed with a triangle. The key here is that labels exist the moment you create a node in the tree: you never have to set labels yourself. In @fig-tree-4, for example, we want a triangle under `N`. This is the first `N` from the top that we see in the tree (well, the only one here). Thus, we must simply state `"N1"` and the `triangle` parameter will target the correct location. This is shown in @code-tree-4. As already mentioned, you should never need to use the `triangle` parameter, but it's there anyway. The notion of automatic labelling is essential for when we discuss arrows.
 
 #align(center)[
   #grid(
@@ -454,15 +458,16 @@ How can we manually add triangles? If the function is successful, you will likel
         supplement: [Tree],
         kind: "tree",
       )[
-        #tree("[S [N the cat] [VP[V sat][PP[P on] [NP the mat]]]]")
+        #tree("[S [N the-cat] [VP[V sat][PP[P on] [NP the mat]]]]")
         #tree("[S [N the cat] [VP[V sat][PP[P on] [NP the mat]]]]", triangle: ("N1",))
       ] <fig-tree-4>
     ],
   )
 ]
 
-
-
+#important(title: "Terminal node behavior:")[
+  A hyphen is used in `the-cat` in @fig-tree-4 (left) to ensure that a single atomic string appears under the terminal node. This is recommended for any multi-word expression that should be treated as one terminal, such as `couch-potato` or `pé-de-moleque` (a Brazilian candy, lit. 'boy's foot'). If you instead type `the cat`, a large space will be added between the two words, as if they were sister nodes but without branches. This is by design: `#tree()` assumes that strings in terminal position are atomic. A preterminal category can still take branching structure, which is useful for morphological or compound analyses. For example, `[N [N abc] [N def]]` renders as a noun-noun compound with internal structure, rather than as a single atomic terminal.
+]
 
 = Arrows <sec-arrows>
 
@@ -791,7 +796,7 @@ A final example includes longer annotation, from #cite(<fox2016qr>, form: "prose
 
 = Bilingual trees
 
-In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qtree, English and Japanese trees are compared in a single figure. This is accomplished here with the function `#garden()`, which allows for multiple trees to be built on top of each other. Because 2 is probably the ideal number of trees for this use case, that is the scenario illustrated in @fig-tree-bi. Here, again, the tree number is referenced by a suffix. For example, if we want to link the second N in tree 1 to the third NP in tree two, we add `("n2-1", "np3-2")`. This is relatively intuitive, and automatic labels allow for @code-tree-bi to be considerably more minimal than what we would need in ~#LaTeX. Finally, to have a "mirror image" of two trees, one of the trees must be upside-down. This is why the `direction` parameter exists, discussed further in @sec-direction. We simply specify `direction: "up"` to flip a tree vertically, as shown in @fig-tree-bi.
+In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qtree, English and Japanese trees are compared in a single figure. This is accomplished here with the function `#garden()`, which allows for multiple trees to be built on top of each other. Because two is probably the ideal number of trees for this use case, that is the scenario illustrated in @fig-tree-bi. Here, again, the tree number is referenced by a suffix. For example, if we want to link the second N in tree 1 to the third NP in tree 2, we add `("n2-1", "np3-2")`. This is relatively intuitive, and automatic labels allow for @code-tree-bi to be considerably more minimal than what we would need in ~#LaTeX. Finally, to have a "mirror image" of two trees, one of the trees must be upside-down. This is why the `direction` parameter exists, discussed further in @sec-direction. We simply specify `direction: "up"` to flip a tree vertically, as shown in @fig-tree-bi.
 
 #align(center)[
   #grid(
@@ -1079,7 +1084,7 @@ For sub-examples, use the list syntax (`-`). Each item is automatically lettered
   ],
 )
 
-Without `labels`, sub-examples are simply not "referenceable" individually --- only the example as a whole can be labeled and referenced. The `title` argument places a title on the same line as the example number, with the content below. Finally, the `caption` argument is only used if you plan to have a table of contents exclusively for examples, which covers both `#eg()` and `#gloss()` (discussed next). In @eg-title, a `caption` has been added, but nothing is printed. In @sec-glosses, an outline is produced where this caption will be useful.
+Without `labels`, sub-examples are simply not "referenceable" individually --- only the example as a whole can be labelled and referenced. The `title` argument places a title on the same line as the example number, with the content below. Finally, the `caption` argument is only used if you plan to have a table of contents exclusively for examples, which covers both `#eg()` and `#gloss()` (discussed next). In @eg-title, a `caption` has been added, but nothing is printed. In @sec-glosses, an outline is produced where this caption will be useful.
 
 #grid(
   columns: 1,
@@ -1484,7 +1489,7 @@ Breaking lines is easy with `\\n`. This avoids having phrases that are too wide.
 
 == Formatting
 
-Let's now explore some important consequences of using a string as our main input. What if we want to use bold, italics, small caps, Greek letters, etc.? If you have used Typst before, you know that you can simply add whatever symbol you need directly into the document (UTF-8 is natively accepted). But `#tree()` also has some presets to make this easier. @fig-tree-5 shows how to adjust the formatting of strings in the tree. Greek letters are interpretable as long as you use `\\`. For italics, you use `*cat*`; for bold, `**mat**`, for small caps, `@sat@`. You can also strike through text with `~` (see @fig-tree-5). Finally, subscripts and superscripts can be easily added with `_` and `^`, respectively. An additional parameter, `highlight`, exists for drawing a rectangle around any given node (equivalent to `\node[draw]` in `tikz-qtree`)---we refer to `P` as `"p1"` in @code-tree-5 ("first [and only] P from the top of the tree").
+Let's now explore some important consequences of using a string as our main input. What if we want to use bold, italics, small caps, Greek letters, etc.? If you have used Typst before, you know that you can simply add whatever symbol you need directly into the document (UTF-8 is natively accepted). But `#tree()` also has some presets to make this easier. @fig-tree-5 shows how to adjust the formatting of strings in the tree. Greek letters are interpretable as long as you use `\\`. For italics, you use `*cat*`; for bold, `**mat**`, for small caps, `@sat@`. You can also strike through text with `~` (see @fig-tree-5). Finally, subscripts and superscripts can be easily added with `_` and `^`, respectively. An additional parameter, `highlight`, exists for drawing a rectangle around any given node (equivalent to `\node[draw]` in `tikz-qtree`) --- we refer to `P` as `"p1"` in @code-tree-5 ("first [and only] P from the top of the tree").
 
 #align(center)[
   #grid(
@@ -1920,7 +1925,7 @@ Example from #cite(<elliott2022and>, form: "prose", supplement: "p. 10") showing
               ("ett1", red),
               ("st1", blue),
             ),
-            numbers: ( // labels strip ignore < > and , of nodes
+            numbers: ( // Label stripping ignores <, >, and , in node names
               ("stt1", 5),
               ("t1", 4),
               ("et1", 3),
@@ -1965,6 +1970,4 @@ Example from #cite(<elliott2022and>, form: "prose", supplement: "p. 10") showing
     ],
   )
 ]
-
-
 
