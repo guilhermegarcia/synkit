@@ -3,7 +3,7 @@
 
 #import "syntax.typ": tree, garden
 #import "movement.typ": move, blank
-#import "eg.typ": eg, subex-label, eg-num-label, eg-rules
+#import "eg.typ": eg, eg-rules
 #import "gloss.typ": gloss
 
 /// Draw a syntax tree from bracket notation.
@@ -53,23 +53,29 @@
 #let blank = blank
 
 /// Numbered linguistic example with automatic (1), (2)... numbering.
-/// Use with `subex-label()` for sub-examples (a., b., c...).
+/// Wrap content directly for a single example, or use list syntax for
+/// automatically lettered sub-examples. Use `labels` to make individual
+/// sub-examples referenceable.
 /// Apply `#show: eg-rules` to enable reference formatting.
 /// Optional arguments include `caption`, `title`, and `labels`.
 ///
 /// ```typ
-/// #eg(caption: "Wh-movement")[
-///   #table(
-///     columns: (2em, 2em, 1fr),
-///     stroke: none, align: left + bottom,
-///     [#eg-num-label()], [#subex-label()], [Who do you think saw Mary?],
-///     [], [#subex-label()], [#move(...)],
-///   )
-/// ]
+/// #eg(labels: (<s-plain>, <s-move>))[
+///   - Who do you think saw Mary?
+///   - #move(
+///       "[CP Who do you think [(CP)[TP<who>saw Mary]]]",
+///       arrows: ((from: "who2", to: "who1", dash: "solid", color: black),),
+///     )
+/// ] <eg-wh>
 /// ```
 #let eg = eg
-#let subex-label = subex-label
-#let eg-num-label = eg-num-label
+
+/// Show rules for linguistic examples.
+///
+/// Apply this to enable proper reference formatting for eg().
+/// References render as (1), (1a), (1b), etc.
+///
+/// Usage: `#show: eg-rules`
 #let eg-rules = eg-rules
 
 /// Create an interlinear glossed example with automatic numbering.

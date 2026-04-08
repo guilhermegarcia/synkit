@@ -1,6 +1,5 @@
 #import "lib.typ": *
 #import "@preview/fontawesome:0.5.0": *
-#import "@preview/phonokit:0.5.4": *
 #show: eg-rules
 
 #let myYellow = rgb(247, 140, 70)     // Laval yellow/orange
