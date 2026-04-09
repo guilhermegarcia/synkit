@@ -1,8 +1,8 @@
 // synkit — A toolkit to draw syntax trees
 // Version 0.1.0
 
-#import "syntax.typ": tree, garden
-#import "movement.typ": move, blank
+#import "syntax.typ": garden, tree
+#import "movement.typ": blank, move
 #import "eg.typ": eg, eg-rules
 #import "gloss.typ": gloss
 

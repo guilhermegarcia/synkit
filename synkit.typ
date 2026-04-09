@@ -1969,4 +1969,3 @@ Example from #cite(<elliott2022and>, form: "prose", supplement: "p. 10") showing
     ],
   )
 ]
-
