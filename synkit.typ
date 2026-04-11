@@ -340,7 +340,7 @@ You may need to create a symlink depending on how you structure your files. See 
 
 = Basic trees
 
-Let's begin with a simple tree, following the steps of David Chiang's excellent tutorial on `tikz-qtree` @tikz-qtree, which you can find #link("https://ctan.org/pkg/tikz-qtree")[here]. The function we'll be using is `#tree()`, and by the end of this manual, I hope that all of its parameters will be familiar. The main parameter of the function is the tree itself (`input`), which is a string, as can be seen in @code-tree-1. The first thing to notice is that the spaces between `[]` are not a deal breaker.
+Let's begin with a simple tree, following the steps of David Chiang's excellent tutorial on `tikz-qtree` @tikz-qtree, which you can find #link("https://ctan.org/pkg/tikz-qtree")[here]. The function we'll be using is `#tree()`, and by the end of this manual, I hope that all of its parameters will be familiar. The main parameter of the function is the tree itself, which is a string, as can be seen in @code-tree-1. The first thing to notice is that the spaces between `[]` are not a deal breaker.
 
 #align(center)[
   #grid(
