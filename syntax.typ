@@ -271,8 +271,11 @@
 // If a node is in the triangle set, use at least 2 leaf widths for spacing.
 // When \n breaks are present, use the widest line's word count instead of total.
 // Wide leaf labels claim proportionally more slots.
-#let _leaf-count(node, tri-set, leaf-w: 1.0, content-size: 0.8, annotation-leaf-widths: (:)) = {
+#let _leaf-count(node, tri-set, leaf-w: 1.0, content-size: 0.8, annotation-leaf-widths: (:), is-horiz: false) = {
   if node.is-leaf or node.children.len() == 0 {
+    if is-horiz {
+      return 1
+    }
     // Check if the label is wider than one slot
     let char-w = 0.22 * content-size
     let label-w = _rendered-len(node.label) * char-w
@@ -280,6 +283,11 @@
     return slots
   }
   if node.anchor in tri-set {
+    if is-horiz {
+      let lines = _collect-leaves(node).join(" ").split(" \\n ")
+      let lines = if lines.len() == 1 { _collect-leaves(node).join(" ").split("\\n") } else { lines }
+      return calc.max(1, lines.len())
+    }
     // Use minimal slot count — triangle text overflows visually,
     // and rightward collision with siblings is resolved in the layout loop.
     return 2
@@ -292,7 +300,11 @@
       leaf-w: leaf-w,
       content-size: content-size,
       annotation-leaf-widths: annotation-leaf-widths,
+      is-horiz: is-horiz,
     )
+  }
+  if is-horiz {
+    return total
   }
   // Ensure non-leaf node's own label fits within the allocated width.
   // Node labels use full-size font (char-w ≈ 0.22), so wide labels like
@@ -355,6 +367,7 @@
       leaf-w: leaf-w,
       content-size: content-size,
       annotation-leaf-widths: annotation-leaf-widths,
+      is-horiz: is-horiz,
     )
     let my-x = x0 + lc * leaf-w / 2
     let leaves = _collect-leaves(node)
@@ -394,9 +407,14 @@
       leaf-w: leaf-w,
       content-size: content-size,
       annotation-leaf-widths: annotation-leaf-widths,
+      is-horiz: is-horiz,
     ) * leaf-w)
     .sum(default: 0)
-  let reserved-w = calc.max(natural-w, annotation-leaf-widths.at(node.anchor, default: 0) * leaf-w)
+  let reserved-w = if is-horiz {
+    natural-w
+  } else {
+    calc.max(natural-w, annotation-leaf-widths.at(node.anchor, default: 0) * leaf-w)
+  }
   let cursor = x0 + calc.max(0, (reserved-w - natural-w) / 2)
 
   for (i, child) in node.children.enumerate() {
@@ -406,6 +424,7 @@
       leaf-w: leaf-w,
       content-size: content-size,
       annotation-leaf-widths: annotation-leaf-widths,
+      is-horiz: is-horiz,
     )
     // Per-gap horizontal multiplier: node-specific > level > default.
     // A node-specific entry scales the gap after that child, i.e. between
@@ -558,6 +577,7 @@
         leaf-w: leaf-w,
         content-size: content-size,
         annotation-leaf-widths: annotation-leaf-widths,
+        is-horiz: is-horiz,
       )
       let next-width = next-leaves * leaf-w
       let pair-mult = calc.max(h-mult, 0.0)
