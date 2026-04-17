@@ -492,7 +492,7 @@ The parameters `shift` and `bend` are easy to interpret, and allow the user to a
         #tree(
             "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ]
                   [ TP [ DP vous ] [ T' [ T t_i ]
-                    [ VP [ t_DP ] [ V' [V t_i ] [DP des pommes] ] ] ] ] ] ]",
+                    [ VP [ t_{DP} ] [ V' [V t_i ] [DP des pommes] ] ] ] ] ] ]",
             arrows: (
               (from: "trace1", to: "C1", dash: "dotted", color: gray, line-width: 1.70),
               (from: "trace3-198", to: "T1", dash: "solid", bend: 0.2, shift: -1),
@@ -510,7 +510,7 @@ The parameters `shift` and `bend` are easy to interpret, and allow the user to a
         kind: "tree",
       )[
         #tree(
-          "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T t_i ] [ VP [ t_DP ] [ V' [V t_i ] [DP des pommes] ] ] ] ] ] ]",
+          "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T t_i ] [ VP [ t_{DP} ] [ V' [V t_i ] [DP des pommes] ] ] ] ] ] ]",
           arrows: (
             (from: "trace1", to: "C1", dash: "dotted", color: gray, line-width: 1.70),
             (from: "trace3-198", to: "T1", dash: "solid", bend: 0.2, shift: -1),
@@ -540,7 +540,7 @@ In summary, arrows have a lot of defaults, so you often end up with minimal code
       )[
         ```typst
         #tree(
-          "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_DP ]
+          "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ]
            [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
           arrows: (
             (from: "trace3", to: "T1"),
@@ -559,7 +559,7 @@ In summary, arrows have a lot of defaults, so you often end up with minimal code
         kind: "tree",
       )[
         #tree(
-          "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_DP ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
+          "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
           arrows: (
             (from: "trace3", to: "T1"),
             (from: "trace2", to: "DP1"),
@@ -1900,6 +1900,12 @@ Finally, Typst's repository contains sub-directories to keep track of each versi
 
 
 #pagebreak()
+
+// = Square brackets
+//
+// #tree(
+//   "[CP [DP_i\[wh, ~uOP~: INT\] who ] [C'\[INT,~uwh\*~, ~uV\*~, ~uT*~\] [C\[INT, uwh\*, ~uV\*~, ~uT\*~\] [T did] [C Ø] ] [TP [DP_j Prumpt] [T' [<T>] [vP [<DP_j>] [v' ...] ] ] ] ] ]",
+// )
 
 = Additional trees
 

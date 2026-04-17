@@ -4,7 +4,7 @@
 Tree from Carnie (2013).
 
 #tree(
-  "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_DP ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
+  "[ CP [] [ C' [ C Ø_{\[+Q\]+T+Mangez} ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
   arrows: (
     (from: "trace3", to: "T1"),
     (from: "trace2", to: "DP1"),

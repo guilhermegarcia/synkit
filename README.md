@@ -84,6 +84,8 @@ If you are working from a local clone instead, import `lib.typ` directly:
 - Adjust spacing, direction, scale, highlighting, numbering, and colors with lightweight arguments
 - Smart labels ensure that you never have to create labels yourself: every word, node and even emoji is its own label
 
+Literal square brackets inside labels can be written as `\[` and `\]`, which is useful for Adger-style feature bundles such as `DP_i\[wh, ~uOP~: INT\]`.
+
 ## Manual
 
 See the manual for a comprehensive description of each function available. Check `synkit.pdf` in the package's repository.

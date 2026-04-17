@@ -17,15 +17,30 @@
   let tokens = ()
   let buf = ""
   let brace-depth = 0
-  for ch in input.clusters() {
-    if ch == "{" {
+  let literal-bracket-depth = 0
+  let chars = input.clusters()
+  let skip-next = false
+  for (i, ch) in chars.enumerate() {
+    if skip-next {
+      skip-next = false
+    } else if ch == "\\" and i + 1 < chars.len() and (chars.at(i + 1) == "[" or chars.at(i + 1) == "]") {
+      // Escaped square brackets are literal label characters, not tree structure.
+        let next = chars.at(i + 1)
+        if next == "[" {
+          literal-bracket-depth = literal-bracket-depth + 1
+        } else {
+          literal-bracket-depth = calc.max(0, literal-bracket-depth - 1)
+        }
+        buf = buf + next
+        skip-next = true
+    } else if ch == "{" {
       brace-depth = brace-depth + 1
       buf = buf + ch
     } else if ch == "}" {
       brace-depth = calc.max(0, brace-depth - 1)
       buf = buf + ch
-    } else if brace-depth > 0 {
-      // Inside braces: everything is literal (no splitting on [ ] or spaces)
+    } else if brace-depth > 0 or literal-bracket-depth > 0 {
+      // Inside braces or escaped literal brackets: everything is literal.
       buf = buf + ch
     } else if ch == "[" or ch == "]" {
       if buf.trim() != "" { tokens.push(buf.trim()) }
@@ -48,7 +63,13 @@
   let s = label
   // Remove escapes for literal formatting characters before stripping markers.
   // This keeps anchors usable for labels like \muP\* -> muP, not muP\.
-  s = s.replace("\\*", "").replace("\\@", "").replace("\\&", "").replace("\\~", "")
+  s = s
+    .replace("\\*", "")
+    .replace("\\@", "")
+    .replace("\\&", "")
+    .replace("\\~", "")
+    .replace("\\[", "")
+    .replace("\\]", "")
   // Strip subscript: first _ and everything after (e.g., CP_i → CP)
   if s.contains("_") {
     let idx = s.position("_")
@@ -57,6 +78,15 @@
   // Strip superscript: first ^ and everything after (e.g., NP^max → NP)
   if s.contains("^") {
     let idx = s.position("^")
+    s = s.slice(0, idx)
+  }
+  // Strip literal feature suffixes after the base label (e.g., C'{INT,...} → C')
+  if s.contains("{") {
+    let idx = s.position("{")
+    s = s.slice(0, idx)
+  }
+  if s.contains("[") {
+    let idx = s.position("[")
     s = s.slice(0, idx)
   }
   // Strip *, @, &, ~ for bold/italic/smallcaps/underline/strikethrough
@@ -237,33 +267,169 @@
 // ── Estimate rendered character count (strips formatting markers) ────────────
 // Counts visible characters after stripping *, @, &, _subscript, and ^superscript.
 #let _esc-star = "\u{FFFD}" // placeholder for escaped \*
+#let _esc-at = "\u{FFFC}"
+#let _esc-amp = "\u{FFFB}"
+#let _esc-tilde = "\u{FFFA}"
+#let _esc-lbrack = "\u{FFF9}"
+#let _esc-rbrack = "\u{FFF8}"
+
+#let _normalize-escapes(s) = {
+  s
+    .replace("\\*", _esc-star)
+    .replace("\\@", _esc-at)
+    .replace("\\&", _esc-amp)
+    .replace("\\~", _esc-tilde)
+    .replace("\\[", _esc-lbrack)
+    .replace("\\]", _esc-rbrack)
+}
+
+#let _restore-escapes(s) = {
+  s
+    .replace(_esc-star, "*")
+    .replace(_esc-at, "@")
+    .replace(_esc-amp, "&")
+    .replace(_esc-tilde, "~")
+    .replace(_esc-lbrack, "[")
+    .replace(_esc-rbrack, "]")
+}
+
+#let _find-brace-end(s) = {
+  let depth = 0
+  for (i, ch) in s.clusters().enumerate() {
+    if ch == "{" { depth = depth + 1 }
+    if ch == "}" { depth = depth - 1 }
+    if depth == 0 {
+      return i
+    }
+  }
+  none
+}
+
+#let _annotation-boundary(ch) = {
+  (
+    ch == " "
+    or ch == "\t"
+    or ch == "\n"
+    or ch == "{"
+    or ch == "}"
+    or ch == "["
+    or ch == "]"
+    or ch == "_"
+    or ch == "^"
+  )
+}
+
+#let _parse-label-parts(label) = {
+  let chars = label.clusters()
+  let main-chars = ()
+  let rest-chars = ()
+  let in-rest = false
+  for (i, ch) in chars.enumerate() {
+    if not in-rest and (ch == "_" or ch == "^" or (i > 0 and (ch == "{" or ch == "["))) {
+      in-rest = true
+      rest-chars.push(ch)
+    } else if in-rest {
+      rest-chars.push(ch)
+    } else {
+      main-chars.push(ch)
+    }
+  }
+  let main = if main-chars.len() == 0 { "" } else { main-chars.join() }
+  let rest = if rest-chars.len() == 0 { "" } else { rest-chars.join() }
+  let sub-text = none
+  let sup-text = none
+  let sub-braced = false
+  let sup-braced = false
+  let tail-text = ""
+  let rest-arr = rest.clusters()
+  let cursor = 0
+
+  while cursor < rest-arr.len() {
+    let ch = rest-arr.at(cursor)
+    if ch != "_" and ch != "^" {
+      tail-text = tail-text + rest-arr.slice(cursor).join()
+      break
+    }
+
+    let after = rest-arr.slice(cursor + 1)
+    let ann = ""
+    let braced = false
+    let consumed = 0
+    if after.len() > 0 and after.at(0) == "{" {
+      braced = true
+      let depth = 0
+      let ann-chars = ()
+      let end-found = false
+      for (j, ach) in after.enumerate() {
+        if ach == "{" {
+          depth = depth + 1
+          if depth > 1 { ann-chars.push(ach) }
+        } else if ach == "}" {
+          depth = depth - 1
+          if depth == 0 {
+            consumed = j + 1
+            end-found = true
+            break
+          } else {
+            ann-chars.push(ach)
+          }
+        } else if depth >= 1 {
+          ann-chars.push(ach)
+        }
+      }
+      ann = if ann-chars.len() == 0 { "" } else { ann-chars.join() }
+      if not end-found {
+        consumed = after.len()
+      }
+    } else {
+      // LaTeX-style lazy scope: an unbraced _/^ only grabs the next character.
+      if after.len() > 0 {
+        ann = after.at(0)
+        consumed = 1
+      }
+    }
+
+    if ch == "_" and sub-text == none {
+      sub-text = ann
+      sub-braced = braced
+    } else if ch == "^" and sup-text == none {
+      sup-text = ann
+      sup-braced = braced
+    } else {
+      tail-text = tail-text + ch + if braced { "{" + ann + "}" } else { ann }
+    }
+    cursor = cursor + 1 + consumed
+  }
+
+  (
+    main: main,
+    sub-text: sub-text,
+    sup-text: sup-text,
+    sub-braced: sub-braced,
+    sup-braced: sup-braced,
+    tail-text: tail-text,
+  )
+}
 
 #let _rendered-len(s) = {
-  let result = _apply-symbols(s)
-  // Escaped asterisk \* → single placeholder char (counts as 1 visible char)
-  result = result.replace("\\*", _esc-star)
+  let parts = _parse-label-parts(_normalize-escapes(_apply-symbols(s)))
+  let result = parts.main + parts.tail-text
   // Strip formatting markers and braces
   result = result.replace("*", "").replace("@", "").replace("&", "").replace("~", "").replace("{", "").replace("}", "")
+  result = _restore-escapes(result)
   // Strip sub/superscript markers but keep the content (it contributes to width)
   // _text and ^text → text is rendered smaller, count at ~0.7x
   let words = result.split(" ")
   let total = 0
   for w in words {
-    // Find first _ or ^ to split main from annotation
-    let sub-pos = if w.contains("_") { w.position("_") } else { none }
-    let sup-pos = if w.contains("^") { w.position("^") } else { none }
-    let split = if sub-pos != none and sup-pos != none { calc.min(sub-pos, sup-pos) } else if sub-pos != none {
-      sub-pos
-    } else if sup-pos != none { sup-pos } else { none }
-    if split != none {
-      let main-part = w.slice(0, split)
-      let ann-part = w.slice(split).replace("_", "").replace("^", "")
-      total = total + main-part.clusters().len() + calc.ceil(ann-part.clusters().len() * 0.7)
-    } else {
-      total = total + w.clusters().len()
-    }
+    total = total + w.clusters().len()
     total = total + 1 // space between words
   }
+  let ann = ""
+  if parts.sup-text != none { ann = ann + parts.sup-text }
+  if parts.sub-text != none { ann = ann + parts.sub-text }
+  ann = _restore-escapes(_apply-symbols(ann).replace("*", "").replace("@", "").replace("&", "").replace("~", ""))
+  total = total + calc.ceil(ann.clusters().len() * 0.7)
   calc.max(0, total - 1) // remove trailing space
 }
 
@@ -627,115 +793,22 @@
 //   label^x_y → both superscript and subscript
 #let _display-label(label) = {
   // ── Angle bracket protector: <et,t> → ⟨et,t⟩ ──
-  let label = label.replace("<", "⟨").replace(">", "⟩")
+  let label = _normalize-escapes(label.replace("<", "⟨").replace(">", "⟩"))
   // ── Auto-italic traces: t_X or T_X → *t*_X or *T*_X ──
   // Only when there is a subscript (bare t/T without subscript is a regular node)
   let label = {
-    let si = if label.contains("_") { label.position("_") } else { none }
-    let ci = if label.contains("^") { label.position("^") } else { none }
-    let end = if si != none and ci != none { calc.min(si, ci) } else if si != none { si } else { none }
-    let main = if end != none { label.slice(0, end) } else if ci != none { label.slice(0, ci) } else { label }
+    let label-parts = _parse-label-parts(label)
+    let main = label-parts.main
     let bare = main.replace("*", "").replace("@", "").replace("&", "").replace("~", "")
-    if not bare.contains("0") and (bare == "t" or bare == "T") and si != none {
-      "*" + main + "*" + if end != none { label.slice(end) } else { "" }
+    if not bare.contains("0") and (bare == "t" or bare == "T") and label-parts.sub-text != none {
+      "*" + main + "*" + if label.len() > main.len() { label.slice(main.len()) } else { "" }
     } else { label }
   }
-  // Extract subscript and superscript
-  // Find first occurrence of _ or ^ to split main from annotations
-  let sub-text = none
-  let sup-text = none
-  let sub-idx = if label.contains("_") { label.position("_") } else { none }
-  let sup-idx = if label.contains("^") { label.position("^") } else { none }
-  // Determine where the main label ends
-  let split-idx = if sub-idx != none and sup-idx != none {
-    calc.min(sub-idx, sup-idx)
-  } else if sub-idx != none { sub-idx } else if sup-idx != none { sup-idx } else { none }
-  let main = if split-idx != none { label.slice(0, split-idx) } else { label }
-  // Helper: extract braced or plain annotation after a marker (_ or ^)
-  // Returns (annotation-text, tail-after-annotation)
-  let _extract-annotation(after, other-marker) = {
-    if after.starts-with("{") {
-      // Find matching closing brace
-      let depth = 0
-      let end = none
-      for (i, ch) in after.clusters().enumerate() {
-        if ch == "{" { depth = depth + 1 }
-        if ch == "}" { depth = depth - 1 }
-        if depth == 0 {
-          end = i
-          break
-        }
-      }
-      if end != none {
-        let ann = after.slice(1, end) // strip outer { }
-        let tail = after.slice(end + 1) // everything after }
-        (ann, tail)
-      } else {
-        (after.slice(1), "") // no matching }, take everything after {
-      }
-    } else {
-      let t = if after.contains(other-marker) { after.slice(0, after.position(other-marker)) } else { after }
-      (t.replace("*", ""), "")
-    }
-  }
-  // Tail text: anything after a braced annotation (e.g., _{[+Q]}+T+mangez → tail = "+T+mangez")
-  let tail-text = ""
-  // Parse the annotation portion for _ and ^
-  if split-idx != none {
-    let rest = label.slice(split-idx)
-    // Extract subscript
-    if rest.contains("_") {
-      let ui = rest.position("_")
-      let after = rest.slice(ui + 1)
-      let (ann, tail) = _extract-annotation(after, "^")
-      sub-text = ann
-      if tail != "" { tail-text = tail }
-    }
-    // Extract superscript
-    if rest.contains("^") {
-      let ci = rest.position("^")
-      let after = rest.slice(ci + 1)
-      let (ann, tail) = _extract-annotation(after, "_")
-      sup-text = ann
-      if tail != "" { tail-text = tail }
-    }
-  }
-  // Escaped asterisk: \* → placeholder (avoids italic/bold detection)
-  let main = main.replace("\\*", _esc-star)
-  // Detect formatting markers
-  let is-bold = main.starts-with("**") and main.ends-with("**") and main.len() >= 5
-  let is-italic = not is-bold and main.starts-with("*") and main.ends-with("*") and main.len() >= 3
-  let is-smallcaps = main.starts-with("@") and main.ends-with("@") and main.len() >= 3
-  let is-underline = main.starts-with("&") and main.ends-with("&") and main.len() >= 3
-  let is-strike = main.starts-with("~") and main.ends-with("~") and main.len() >= 3
-  // Strip markers
-  let inner = if is-bold {
-    main.slice(2, main.len() - 2)
-  } else if is-italic {
-    main.slice(1, main.len() - 1)
-  } else if is-smallcaps {
-    main.slice(1, main.len() - 1)
-  } else if is-underline {
-    main.slice(1, main.len() - 1)
-  } else if is-strike {
-    main.slice(1, main.len() - 1)
-  } else { main }
-  // Convert symbol shortcuts (e.g., \lambda → λ, \lambdaP → λP)
-  let inner = {
-    let result = inner
-    for (key, val) in _symbol-map {
-      if result.contains(key) {
-        result = result.replace(key, val)
-      }
-    }
-    result
-  }
-  // Convert prime
-  let display = if inner.contains("'") or inner.contains("'") {
-    let parts = inner.split("'")
-    let parts = if parts.len() == 1 { inner.split("'") } else { parts }
-    parts.at(0) + "′" + parts.slice(1).join("′")
-  } else { inner }
+  let parts = _parse-label-parts(label)
+  let main = parts.main
+  let sub-text = parts.sub-text
+  let sup-text = parts.sup-text
+  let tail-text = parts.tail-text
   // Helper: italicize Greek Unicode characters within a string
   let _greek-set = "αβγδεζηθικλμνξπρστυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΠΡΣΤΥΦΧΨΩ"
   let _italicize-greek(s) = {
@@ -755,8 +828,13 @@
     if buf != "" { out = out + [#buf] }
     out
   }
-  // Auto-superscript any "0" after a non-digit in the display string (e.g., T0 → T⁰)
-  let display-content = {
+  let _display-chars(s) = {
+    let display = _restore-escapes(_apply-symbols(s))
+    let display = if display.contains("'") or display.contains("'") {
+      let parts = display.split("'")
+      let parts = if parts.len() == 1 { display.split("'") } else { parts }
+      parts.at(0) + "′" + parts.slice(1).join("′")
+    } else { display }
     let chars = display.clusters()
     let parts = ()
     let buf = ""
@@ -785,58 +863,93 @@
       display // plain string, no zeros to superscript
     }
   }
-  // Build content
-  let body = if is-bold { [*#display-content*] } else if is-italic { emph(display-content) } else if is-smallcaps {
-    smallcaps(display-content)
-  } else if is-underline { underline(display-content) } else if is-strike { strike(display-content) } else {
-    // Check for inline *...* italic segments within the label (e.g., \lambda*p*)
-    if type(display-content) == str and display-content.contains("*") {
-      let parts = display-content.split("*")
-      let out = []
-      for (i, part) in parts.enumerate() {
-        if calc.rem(i, 2) == 1 {
-          out = out + emph(part)
-        } else if part != "" {
-          out = out + _italicize-greek(part)
-        }
-      }
-      out
-    } else if type(display-content) == str {
-      _italicize-greek(display-content)
+  let _plain-content(s) = {
+    let content = _display-chars(s)
+    if type(content) == str {
+      _italicize-greek(content)
     } else {
-      display-content
+      content
     }
   }
-  // Apply symbol substitution to sub/superscript text
-  let _apply-sym(t) = {
-    let r = t
-    for (key, val) in _symbol-map {
-      if r.contains(key) { r = r.replace(key, val) }
+  let _inline-content(s) = {
+    let pieces = ()
+    let active = none
+    let active-buf = ""
+    let buf = ""
+    let chars = s.clusters()
+    let i = 0
+    while i < chars.len() {
+      let ch = chars.at(i)
+      let token = if ch == "*" and i + 1 < chars.len() and chars.at(i + 1) == "*" {
+        "**"
+      } else if ch == "*" or ch == "@" or ch == "&" or ch == "~" {
+        ch
+      } else { none }
+      if token != none {
+        if active == none {
+          if buf != "" { pieces.push((text: buf, style: none)) }
+          buf = ""
+          active = token
+        } else if active == token {
+          pieces.push((text: active-buf, style: token))
+          active = none
+          active-buf = ""
+        } else {
+          active-buf = active-buf + token
+        }
+        i = i + token.len()
+      } else {
+        if active == none {
+          buf = buf + ch
+        } else {
+          active-buf = active-buf + ch
+        }
+        i = i + 1
+      }
     }
-    r
+    if active != none {
+      buf = buf + active + active-buf
+    }
+    if buf != "" { pieces.push((text: buf, style: none)) }
+    let out = []
+    for piece in pieces {
+      let body = _plain-content(piece.text)
+      if piece.style == "**" {
+        out = out + [*#body*]
+      } else if piece.style == "*" {
+        out = out + emph(body)
+      } else if piece.style == "@" {
+        out = out + smallcaps(body)
+      } else if piece.style == "&" {
+        out = out + underline(body)
+      } else if piece.style == "~" {
+        out = out + strike(body)
+      } else {
+        out = out + body
+      }
+    }
+    out
   }
-  // Detect if annotation was braced (should not be italicized)
-  let sub-braced = sub-text != none and label.contains("_{")
-  let sup-braced = sup-text != none and label.contains("^{")
+  let _italic-sub-content(s) = emph(_inline-content(s))
+  let body = _inline-content(main)
   let result = if sup-text != none and sup-text != "" and sub-text != none and sub-text != "" {
-    let sup-display = _apply-sym(sup-text)
-    let sub-display = _apply-sym(sub-text)
-    let sup-r = if sup-braced { [#super[#sup-display]] } else { [#super[_#sup-display _]] }
-    let sub-r = if sub-braced { [#sub[#sub-display]] } else { [#sub[_#sub-display _]] }
+    let sup-display = _inline-content(sup-text)
+    let sub-display = _italic-sub-content(sub-text)
+    let sup-r = [#super[#sup-display]]
+    let sub-r = [#sub[#sub-display]]
     [#body#sup-r#sub-r]
   } else if sup-text != none and sup-text != "" {
-    let sup-display = _apply-sym(sup-text)
-    if sup-braced { [#body#super[#sup-display]] } else { [#body#super[_#sup-display _]] }
+    let sup-display = _inline-content(sup-text)
+    [#body#super[#sup-display]]
   } else if sub-text != none and sub-text != "" {
-    let sub-display = _apply-sym(sub-text)
-    if sub-braced { [#body#sub[#sub-display]] } else { [#body#sub[_#sub-display _]] }
+    let sub-display = _italic-sub-content(sub-text)
+    [#body#sub[#sub-display]]
   } else { body }
   // Append tail text (e.g., +T+mangez after _{[+Q]})
   let final = if tail-text != "" {
-    [#result#tail-text]
+    [#result#_inline-content(tail-text)]
   } else { result }
-  // Restore escaped asterisk placeholder → literal *
-  { show _esc-star: [#"*"]; final }
+  final
 }
 
 // ── Inline formatter for append text ────────────────────────────────────────
