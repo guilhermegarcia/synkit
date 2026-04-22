@@ -287,7 +287,7 @@ Any questions, comments or suggestions should be posted to the repository below 
 
 #heading(numbering: none, outlined: false)[Version history]
 
-`0.0.2` - Bug fixes \
+`0.0.2` - Bug fixes, literal brackets now accepted as escaped characters \
 `0.0.1` - Initial release \
 
 
@@ -1900,12 +1900,6 @@ Finally, Typst's repository contains sub-directories to keep track of each versi
 
 
 #pagebreak()
-
-// = Square brackets
-//
-// #tree(
-//   "[CP [DP_i\[wh, ~uOP~: INT\] who ] [C'\[INT,~uwh\*~, ~uV\*~, ~uT*~\] [C\[INT, uwh\*, ~uV\*~, ~uT\*~\] [T did] [C Ø] ] [TP [DP_j Prumpt] [T' [<T>] [vP [<DP_j>] [v' ...] ] ] ] ] ]",
-// )
 
 = Additional trees
 
