@@ -1142,6 +1142,8 @@ Without `labels`, sub-examples are simply not "referenceable" individually --- o
 
 = Glosses <sec-glosses>
 
+The `#gloss()` function is meant to be a lightweight companion to `#eg()`, especially when examples need to share numbering across #logo and #phonokit. For a more complete glossing solution, I strongly recommend using the #link("https://github.com/retroflexivity/typst-eggs")[`eggs`] package @eggs, which is a dedicated package.
+
 For numbered examples involving glosses, where alignment is essential, you can use the `#gloss()` function. Its implementation is simple (similar to `#eg()` discussed above): it uses regular expressions to look for spaces, which trigger a split that guarantees alignment across words. Its syntax is also minimal, since it's simply a list. Curly braces can be used to trigger small caps. Both functions (`#gloss()` and `#eg()`) share the same numbering, as expected, since both are numbered examples. See @code-gloss-1, which generates @eg-gloss-1 (note that a `caption` is added here, which will be relevant later in this section).
 
 #align(center)[
