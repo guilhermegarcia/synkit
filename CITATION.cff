@@ -6,7 +6,7 @@ authors:
     email: guilherme.garcia@lli.ulaval.ca
     orcid: https://orcid.org/0000-0003-1412-3856
 title: "synkit: a toolkit to create syntactic representations in Typst"
-version: 0.0.1
+version: 0.0.3
 url: "https://github.com/guilhermegarcia/synkit"
 repository-code: "https://github.com/guilhermegarcia/synkit"
 license: MIT

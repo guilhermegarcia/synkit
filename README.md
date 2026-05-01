@@ -63,7 +63,7 @@ Here are some examples illustrating this philosophy.
 ## Installation
 
 ```typst
-#import "@preview/synkit:0.0.2": *
+#import "@preview/synkit:0.0.3": *
 ```
 
 If you are working from a local clone instead, import `lib.typ` directly:

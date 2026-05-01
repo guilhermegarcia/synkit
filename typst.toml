@@ -2,7 +2,7 @@
 categories = ["utility", "text", "visualization"]
 disciplines = ["linguistics"]
 name = "synkit"
-version = "0.0.2"
+version = "0.0.3"
 exclude = ["gallery/"]
 keywords = ["linguistics", "syntax", "semantics", "morphology"]
 entrypoint = "lib.typ"
