@@ -319,6 +319,12 @@
   )
 }
 
+#let _is-bracketed-subscript(s) = {
+  if type(s) != str { return false }
+  let trimmed = s.trim()
+  trimmed.starts-with("[") and trimmed.ends-with("]")
+}
+
 #let _parse-label-parts(label) = {
   let chars = label.clusters()
   let main-chars = ()
@@ -382,10 +388,25 @@
         consumed = after.len()
       }
     } else {
-      // LaTeX-style lazy scope: an unbraced _/^ only grabs the next character.
+      // LaTeX-style lazy scope: an unbraced _/^ grabs the next character.
+      // If that character starts a symbol command, keep the whole command.
       if after.len() > 0 {
-        ann = after.at(0)
-        consumed = 1
+        if after.at(0) == "\\" {
+          let ann-chars = ("\\",)
+          consumed = 1
+          for ach in after.slice(1) {
+            if ach.match(regex("[A-Za-z]")) != none {
+              ann-chars.push(ach)
+              consumed = consumed + 1
+            } else {
+              break
+            }
+          }
+          ann = ann-chars.join()
+        } else {
+          ann = after.at(0)
+          consumed = 1
+        }
       }
     }
 
@@ -930,11 +951,15 @@
     }
     out
   }
-  let _italic-sub-content(s) = emph(_inline-content(s))
+  let _sub-content(s) = if _is-bracketed-subscript(s) {
+    _inline-content(s)
+  } else {
+    emph(_inline-content(s))
+  }
   let body = _inline-content(main)
   let result = if sup-text != none and sup-text != "" and sub-text != none and sub-text != "" {
     let sup-display = _inline-content(sup-text)
-    let sub-display = _italic-sub-content(sub-text)
+    let sub-display = _sub-content(sub-text)
     let sup-r = [#super[#sup-display]]
     let sub-r = [#sub[#sub-display]]
     [#body#sup-r#sub-r]
@@ -942,7 +967,7 @@
     let sup-display = _inline-content(sup-text)
     [#body#super[#sup-display]]
   } else if sub-text != none and sub-text != "" {
-    let sub-display = _italic-sub-content(sub-text)
+    let sub-display = _sub-content(sub-text)
     [#body#sub[#sub-display]]
   } else { body }
   // Append tail text (e.g., +T+mangez after _{[+Q]})
@@ -1718,10 +1743,11 @@
           let idx = index-map.at(e.anchor, default: none)
           // Build base label with optional coreference index
           let base-label = if idx != none {
+            let idx-style = if _is-bracketed-subscript(idx) { "normal" } else { "italic" }
             [#text(size: sz, fill: col, display)#sub[#text(
                 font: font,
                 size: sz * 0.75,
-                style: "italic",
+                style: idx-style,
                 fill: col,
                 idx,
               )]]
