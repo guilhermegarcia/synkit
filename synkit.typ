@@ -573,6 +573,38 @@ In summary, arrows have a lot of defaults, so you often end up with minimal code
   )
 ]
 
+#important(title: "Help with labels?")[
+  Automatic labels are designed to be easy to use, and code becomes more minimal. However, complicated trees will have many more labels, and it may be annoying to target the right NP if a tree has seven of them. Furthermore, as nodes become more complex, labels also become less obvious, as we will see later in this manual. For that reason, as of version `0.0.3`, the `#tree()` function provides a helper argument: `show-refs` (defaults to `false`). When set to `true`, this will print all labels on top of all nodes for the user (this is inspired by what #phonokit already uses in multi-tier representations). Once all arrows are added and labels are no longer needed, the user can easily turn them off. @fig-tree-defaults is repeated below with `show-refs: true`.
+
+  #align(center)[
+    #grid(
+      columns: 1,
+      gutter: 1em,
+      align: (top, top),
+      [
+        #figure(
+          caption: [Displaying labels temporarily],
+          supplement: [Tree],
+          kind: "tree",
+        )[
+          #tree(
+            "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
+            arrows: (
+              (from: "trace3", to: "T1"),
+              (from: "trace2", to: "DP1"),
+              (from: "trace1", to: "C1"),
+            ),
+            curved: true,
+            show-refs: true,
+            scale: 1,
+          )
+        ] <fig-tree-refs>
+      ],
+    )
+  ]
+
+]
+
 = Multidominance
 
 Another important parameter in the function is `dominance`, which allows for more complex trees where multiple nodes are connected with curved branches. The example in @fig-tree-dom comes from #cite(<fox2016qr>, form: "prose", supplement: "p. 7").
