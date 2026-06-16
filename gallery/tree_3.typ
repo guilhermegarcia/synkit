@@ -1,7 +1,7 @@
 #import "synkit/lib.typ": *
 #set page(height: auto, width: auto, margin: (bottom: 1em, top: 1em, x: 1em))
 
-Tree from David Chiang's tutorial on `tikz-qtree`.
+Tree adapted from David Chiang's tutorial on `tikz-qtree`.
 
 #garden(
   (
@@ -10,7 +10,7 @@ Tree from David Chiang's tutorial on `tikz-qtree`.
     content-size: 1,
   ),
   (
-    input: "[S [NP 猫が] [VP [PP [NP [NP マット] [Part の] [NP 上] ] [P に]] [V 土]]]",
+    input: "[S [NP 猫が] [VP [PP [NP [NP マット] [Part の] [NP 上] ] [P に]] [V 座った]]]",
     direction: "up",
     content-size: 1,
   ),

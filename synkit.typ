@@ -223,7 +223,7 @@
 #show link: set text(fill: blue)
 #show ref: set text(fill: rgb(200, 0, 0))
 
-#let version = text(size: 0.8em)[`v 0.0.3`]
+#let version = text(size: 0.8em)[`v 0.0.4`]
 
 // NOTE: Begin doc here
 #title([#logo #h(1fr) #version])
@@ -287,6 +287,7 @@ Any questions, comments or suggestions should be posted to the repository below 
 
 #heading(numbering: none, outlined: false)[Version history]
 
+`0.0.4` - Fixed bugs in examples \
 `0.0.3` - Bug fix: Greek letters in subscripts/superscripts now render correctly \
 `0.0.2` - Bug fixes, literal brackets now accepted as escaped characters \
 `0.0.1` - Initial release \
@@ -829,7 +830,7 @@ A final example includes longer annotation, from #cite(<fox2016qr>, form: "prose
 
 = Bilingual trees
 
-In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qtree, English and Japanese trees are compared in a single figure. This is accomplished here with the function `#garden()`, which allows for multiple trees to be built on top of each other. Because two is probably the ideal number of trees for this use case, that is the scenario illustrated in @fig-tree-bi. Here, again, the tree number is referenced by a suffix. For example, if we want to link the second N in tree 1 to the third NP in tree 2, we add `("n2-1", "np3-2")`. This is relatively intuitive, and automatic labels allow for @code-tree-bi to be considerably more minimal than what we would need in ~#LaTeX. Finally, to have a "mirror image" of two trees, one of the trees must be upside-down. This is why the `direction` parameter exists, discussed further in @sec-direction. We simply specify `direction: "up"` to flip a tree vertically, as shown in @fig-tree-bi.
+In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qtree, English and Japanese trees are compared in a single figure. This is accomplished here with the function `#garden()`, which allows for multiple trees to be built on top of each other. Because two is probably the ideal number of trees for this use case, that is the scenario illustrated in @fig-tree-bi. Here, again, the tree number is referenced by a suffix. For example, if we want to link the second N in tree 1 to the third NP in tree 2, we add `("n2-1", "np3-2")`. This is relatively intuitive, and automatic labels allow for @code-tree-bi to be considerably more minimal than what we would need in ~#LaTeX. Finally, to have a "mirror image" of two trees, one of the trees must be upside-down. This is why the `direction` parameter exists, discussed further in @sec-direction. We simply specify `direction: "up"` to flip a tree vertically, as shown in @fig-tree-bi. The Japanese verb has been corrected from the original tutorial's apparent `土` typo to `座った`.
 
 #align(center)[
   #grid(
@@ -850,7 +851,7 @@ In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qt
             content-size: 1
           ),
           ( // tree 2
-          input: "[S [NP 猫が] [VP [PP [NP [NP マット] [Part の] [NP 上] ] [P に]] [V 土]]]",
+          input: "[S [NP 猫が] [VP [PP [NP [NP マット] [Part の] [NP 上] ] [P に]] [V 座った]]]",
           direction: "up",
           content-size: 1
           ),
@@ -868,7 +869,7 @@ In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qt
     ],
     [
       #figure(
-        caption: [Bilingual trees --- example from Chiang's tutorial on `tikz-qtree`],
+        caption: [Bilingual trees --- adapted from Chiang's tutorial on `tikz-qtree`],
         supplement: [Tree],
         kind: "tree",
       )[
@@ -879,7 +880,7 @@ In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qt
             content-size: 1,
           ),
           (
-            input: "[S [NP 猫が] [VP [PP [NP [NP マット] [Part の] [NP 上] ] [P に]] [V 土]]]",
+            input: "[S [NP 猫が] [VP [PP [NP [NP マット] [Part の] [NP 上] ] [P に]] [V 座った]]]",
             direction: "up",
             content-size: 1,
           ),
@@ -924,7 +925,7 @@ In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qt
                          [.Part \node(j3){の}; ]
                          [.NP \node(j4){上}; ] ]
                      [.P \node(j5){に}; ] ]
-                 [.V \node(j6){土}; ] ] ]
+                 [.V \node(j6){座った}; ] ] ]
        \end{scope}
        \begin{scope}[dashed]
           \draw (e1)--(j1);
@@ -1232,7 +1233,7 @@ Labels such as `<eg-gloss-1>` seen in @code-gloss-1 are global, but you can also
 ] <eg-sub-pt>
 
 
-Let's explore some additional cases. In @gloss-inuktitut, we see an example from Inuktitut #cite(<CLAcanada>, supplement: "p. 275"). This is a situation where we may want to have four lines for a gloss, where a given line simply shows an orthographic form that should not be parsed by the `#gloss()` function. That's why the `escape` argument exists. In @gloss-inuktitut, the first line (number `0`) is "free" from the parsing used elsewhere in the example.
+Let's explore some additional cases. In @gloss-inuktitut, we see an example adapted from #cite(<CLAcanada>, supplement: "p. 275").#footnote[The negation suffix has been updated from the source's `-ngit-` to the modern standard geminate `-nngit-`. Other features of the original spelling --- e.g., the clusters `gss` and `tl`, and the final `-puq` --- reflect a pre-reform orthographic tradition (ultimately traceable to older West Greenlandic sources) and have been retained here as in the cited source.] This is a situation where we may want to have four lines for a gloss, where a given line simply shows an orthographic form that should not be parsed by the `#gloss()` function. That's why the `escape` argument exists. In @gloss-inuktitut, the first line (number `0`) is "free" from the parsing used elsewhere in the example.
 
 #align(center)[
   #figure(
@@ -1242,8 +1243,8 @@ Let's explore some additional cases. In @gloss-inuktitut, we see an example from
   )[
     ```typst
     #gloss(per: 4, escape: (0,), caption: [An example from Inuktitut])[
-      - Qasuiirsarvigssarsingitluinarnarpuq
-      - Qasu -iir -sar -vig -ssar -si -ngit-luinar -nar -puq
+      - Qasuiirsarvigssarsinngitluinarnarpuq
+      - Qasu -iir -sar -vig -ssar -si -nngit-luinar -nar -puq
       - tired not cause-to-be place-for suitable find not-completely someone 3.{sg}
       - 'Someone did not find a completely suitable resting place.'
     ] <gloss-inuktitut>
@@ -1252,8 +1253,8 @@ Let's explore some additional cases. In @gloss-inuktitut, we see an example from
 ]
 
 #gloss(per: 4, escape: (0,), caption: [An example from Inuktitut])[
-  - Qasuiirsarvigssarsingitluinarnarpuq
-  - Qasu -iir -sar -vig -ssar -si -ngit-luinar -nar -puq
+  - Qasuiirsarvigssarsinngitluinarnarpuq
+  - Qasu -iir -sar -vig -ssar -si -nngit-luinar -nar -puq
   - tired not cause-to-be place-for suitable find not-completely someone 3.{sg}
   - 'Someone did not find a completely suitable resting place.'
 ] <gloss-inuktitut>
@@ -1917,7 +1918,7 @@ One of the best IDE options out there is to use VS Code with the extension Tinym
 
 = How do packages work in Typst? <app-packages>
 
-If you've used R, Python, #LaTeX, etc., you are used to installing packages and then importing them. This vignette has imported #logo, of course, which in turn imports CeTZ @cetz as a dependency. As you start using Typst, you will notice that it works a bit differently, and this may not be self-evident at first. As seen in @sec-installation, there are basically two ways to load and use a package, both of which require the function `#import` inside your `typ` document --- notice that you don't install a package _per se_. The traditional way is to import a package from the official Typst collection/repository, which means adding `#import "@preview/synkit:0.0.3": *` to your `typ` document if you plan on using #logo (assuming version `0.0.3`). The `@preview` bit indicates that the package comes from Typst's official repository. This is what you should do most of the time. Typst packages are cached once you compile a document with a given package.
+If you've used R, Python, #LaTeX, etc., you are used to installing packages and then importing them. This vignette has imported #logo, of course, which in turn imports CeTZ @cetz as a dependency. As you start using Typst, you will notice that it works a bit differently, and this may not be self-evident at first. As seen in @sec-installation, there are basically two ways to load and use a package, both of which require the function `#import` inside your `typ` document --- notice that you don't install a package _per se_. The traditional way is to import a package from the official Typst collection/repository, which means adding `#import "@preview/synkit:0.0.4": *` to your `typ` document if you plan on using #logo (assuming version `0.0.4`). The `@preview` bit indicates that the package comes from Typst's official repository. This is what you should do most of the time. Typst packages are cached once you compile a document with a given package.
 
 Another option is to fork, clone or download a package from GitHub and import its `lib.typ` file instead: `#import "PACKAGE_DIRECTORY/lib.typ": *`. There's only one caveat: Typst restricts imports to files within the compilation root and its subdirectories (i.e., you can't load `lib.typ` if the package is in a parent directory or elsewhere in your system). Thus, you may need to use symlinks (this is the same strategy applied to `bib` files if you don't want to have a local copy of your references).
 
@@ -1931,7 +1932,7 @@ Another option is to fork, clone or download a package from GitHub and import it
   ```,
 )
 
-Finally, Typst's repository contains sub-directories to keep track of each version of a given package. When a package is updated, nothing happens to the existing version of the package. Instead, a new directory is added with the updated version. That's why you specify the _version_ of a package upon importing: `#import "@preview/synkit:0.0.3": *`. If you go to Typst's repository on GitHub, you will see that the repository for #logo has one sub-directory for each version of the package. This means that you always know which version of a package you are using. And because previous versions are not removed, backwards compatibility is not an issue. If you are used to #LaTeX and you have the habit of frequently updating your packages, you will appreciate this, as there's no risk of recompiling your document and running into errors because one of the packages you use has been updated with breaking changes.
+Finally, Typst's repository contains sub-directories to keep track of each version of a given package. When a package is updated, nothing happens to the existing version of the package. Instead, a new directory is added with the updated version. That's why you specify the _version_ of a package upon importing: `#import "@preview/synkit:0.0.4": *`. If you go to Typst's repository on GitHub, you will see that the repository for #logo has one sub-directory for each version of the package. This means that you always know which version of a package you are using. And because previous versions are not removed, backwards compatibility is not an issue. If you are used to #LaTeX and you have the habit of frequently updating your packages, you will appreciate this, as there's no risk of recompiling your document and running into errors because one of the packages you use has been updated with breaking changes.
 
 
 #pagebreak()
