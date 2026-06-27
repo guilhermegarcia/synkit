@@ -63,7 +63,7 @@ Here are some examples illustrating this philosophy.
 ## Installation
 
 ```typst
-#import "@preview/synkit:0.0.4": *
+#import "@preview/synkit:0.0.41": *
 ```
 
 If you are working from a local clone instead, import `lib.typ` directly:
@@ -80,7 +80,6 @@ If you are working from a local clone instead, import `lib.typ` directly:
 - Add multidominance and cross-tree equivalence lines between two trees using `#garden()`
 - Add semantic annotation between node labels and branches
 - Create numbered examples with `#eg()` and interlinear glosses with `#gloss()`
-- Render HPSG Attribute-Value Matrices with `#hpsg()`
 - Adjust spacing, direction, scale, highlighting, numbering, and colors with lightweight arguments
 - Smart labels ensure that you never have to create labels yourself: every word, node and even emoji is its own label
 
