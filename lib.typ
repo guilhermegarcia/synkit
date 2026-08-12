@@ -5,6 +5,7 @@
 #import "movement.typ": blank, move
 #import "eg.typ": eg, eg-rules
 #import "gloss.typ": gloss
+#import "spheres.typ": spheres
 
 /// Draw a syntax tree from bracket notation.
 /// Optional arguments include spacing, arrows, annotations, color,
@@ -93,3 +94,16 @@
 /// ]
 /// ```
 #let gloss = gloss
+
+/// Draw a Lewis-style system of spheres for conditional semantics.
+///
+/// The diagram contains one solid sphere, four dotted concentric guides,
+/// labelled parabolic proposition boundaries, and optional region shading.
+///
+/// ```typ
+/// #spheres(
+///   center-label: $w$,
+///   parabolas: ((label: $phi$, angle: 45, depth: 2, shade: (2, 3)),),
+/// )
+/// ```
+#let spheres = spheres
