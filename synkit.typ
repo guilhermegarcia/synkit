@@ -223,7 +223,7 @@
 #show link: set text(fill: blue)
 #show ref: set text(fill: rgb(200, 0, 0))
 
-#let version = text(size: 0.8em)[`v 0.0.41`]
+#let version = text(size: 0.8em)[`v 0.1.0`]
 
 // NOTE: Begin doc here
 #title([#logo #h(1fr) #version])
@@ -287,6 +287,7 @@ Any questions, comments or suggestions should be posted to the repository below 
 
 #heading(numbering: none, outlined: false)[Version history]
 
+`0.1.0` - New `#spheres()` function for Lewis-style systems of spheres (@sec-spheres). Traces now use their own label (`t1`, `t2`, ...); `show-refs` displays the trace label\
 `0.0.41` - Bug fixes \
 `0.0.4` - Fixed bugs in examples \
 `0.0.3` - Bug fix: Greek letters in subscripts/superscripts now render correctly \
@@ -476,7 +477,7 @@ How can we manually add triangles? If the function is successful, you will likel
 
 The example below comes from #cite(<carnie2013syntax>, supplement: "p. 261", form: "prose"). Arrows are added with the `arrows` parameter, which allows the user to specify `from` and `to` for any given arrow (this uses the automatically created labels already discussed). On top of that, the user can choose `color`, `line-width`, `dash`, and decide whether or not to curve the arrow. By default, arrows are rectangular (see gray dotted arrow in @fig-tree-7) --- multiple rectangular arrows have their heights adjusted automatically to avoid overlapping lines. This can be changed with the parameter `curved: true` (outside `arrows`). But if the user provides `bend` and `shift` inside `arrows`, `curved` will be assumed to be `true`. This is what we see in @fig-tree-7.
 
-You will notice that some labels in @code-tree-7 have a numeric suffix: `trace3-198`. That suffix is optional: it lets the user define exactly _where_ the arrow should depart from (or arrive at, when it's used in `to`). Imagine an invisible ellipse surrounding each node's text. The numeric suffix represents a position on that ellipse in degrees, following standard trigonometric convention: 0° is east (right), 90° is north (up), 180° is west (left), and 270° is south (down). For example, `trace3-198` means "start the arrow from the 198° position around the `trace3` node" — slightly south of due west. Without a degree suffix, arrows use a default exit point in the tree's growth direction (typically below the text for downward trees), as can be seen in the gray dotted arrow once again --- see first line inside `arrows` in @code-tree-7. This gives the user a higher level of control overall.
+You will notice that some labels in @code-tree-7 have a numeric suffix: `t3-198`. That suffix is optional: it lets the user define exactly _where_ the arrow should depart from (or arrive at, when it's used in `to`). Imagine an invisible ellipse surrounding each node's text. The numeric suffix represents a position on that ellipse in degrees, following standard trigonometric convention: 0° is east (right), 90° is north (up), 180° is west (left), and 270° is south (down). For example, `t3-198` means "start the arrow from the 198° position around the `t3` node" — slightly south of due west. Without a degree suffix, arrows use a default exit point in the tree's growth direction (typically below the text for downward trees), as can be seen in the gray dotted arrow once again --- see first line inside `arrows` in @code-tree-7. This gives the user a higher level of control overall.
 
 The parameters `shift` and `bend` are easy to interpret, and allow the user to adjust the curve of each arrow independently. Both parameters have default values, which are implemented when `curved: true` and no values are provided for `bend` or `shift`. The advantage of not specifying `curved`, which is a global parameter within the function, is that both rectangular and curved arrows can coexist in the same tree.
 
@@ -497,10 +498,10 @@ The parameters `shift` and `bend` are easy to interpret, and allow the user to a
                   [ TP [ DP vous ] [ T' [ T t_i ]
                     [ VP [ t_{DP} ] [ V' [V t_i ] [DP des pommes] ] ] ] ] ] ]",
             arrows: (
-              (from: "trace1", to: "C1", dash: "dotted", color: gray, line-width: 1.70),
-              (from: "trace3-198", to: "T1", dash: "solid", bend: 0.2, shift: -1),
-              (from: "trace2-255", to: "DP1", dash: "dashed", bend: 1, shift: -0.5, color: red),
-              (from: "trace1-556", to: "C1", dash: "solid", bend: 1, shift: -1.5),
+              (from: "t1", to: "C1", dash: "dotted", color: gray, line-width: 1.70),
+              (from: "t3-198", to: "T1", dash: "solid", bend: 0.2, shift: -1),
+              (from: "t2-255", to: "DP1", dash: "dashed", bend: 1, shift: -0.5, color: red),
+              (from: "t1-556", to: "C1", dash: "solid", bend: 1, shift: -1.5),
             ),
           )
         ```
@@ -515,10 +516,10 @@ The parameters `shift` and `bend` are easy to interpret, and allow the user to a
         #tree(
           "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T t_i ] [ VP [ t_{DP} ] [ V' [V t_i ] [DP des pommes] ] ] ] ] ] ]",
           arrows: (
-            (from: "trace1", to: "C1", dash: "dotted", color: gray, line-width: 1.70),
-            (from: "trace3-198", to: "T1", dash: "solid", bend: 0.2, shift: -1),
-            (from: "trace2-255", to: "DP1", dash: "dashed", bend: 1, shift: -0.5, color: red),
-            (from: "trace1-556", to: "C1", dash: "solid", bend: 1, shift: -1.5),
+            (from: "t1", to: "C1", dash: "dotted", color: gray, line-width: 1.70),
+            (from: "t3-198", to: "T1", dash: "solid", bend: 0.2, shift: -1),
+            (from: "t2-255", to: "DP1", dash: "dashed", bend: 1, shift: -0.5, color: red),
+            (from: "t1-556", to: "C1", dash: "solid", bend: 1, shift: -1.5),
           ),
         )
       ] <fig-tree-7>
@@ -526,7 +527,7 @@ The parameters `shift` and `bend` are easy to interpret, and allow the user to a
   )
 ]
 
-One final option regarding the specific location of arrows involves two other suffixes for labels. Traces are automatically labelled as `trace`, which means `trace3` in @fig-tree-7 will target _t#sub[i]_, not the V node above it, which would be targeted with `v1`. By default, when we target a node `x`, the arrow targets its content, not the node itself. For phrase movements, we'd use a suffix: `xp-up`. The function assumes `-down` automatically, so `xp1` is the same as `xp1-down`. On top of that, we can append degrees to customize where an arrow hits, so `xp1-down-175` would mean "target the _content_ of the first XP in the tree, specifically at 175°."
+One final option regarding the specific location of arrows involves two other suffixes for labels. Traces are labelled from their own content, exactly like every other node, so `t3` in @fig-tree-7 targets the third _t#sub[i]_ in the tree, not the V node above it, which would be targeted with `V1`. Labels are case-sensitive, so `V1` and `v1` are not interchangeable. By default, when we target a node `x`, the arrow targets its content, not the node itself. For phrase movements, we'd use a suffix: `xp-up`. The function assumes `-down` automatically, so `xp1` is the same as `xp1-down`. On top of that, we can append degrees to customize where an arrow hits, so `xp1-down-175` would mean "target the _content_ of the first XP in the tree, specifically at 175°."
 
 In summary, arrows have a lot of defaults, so you often end up with minimal code. However, they also allow for a relatively high degree of customization through the use of additional parameters. For reference, @fig-tree-defaults uses all the default values for arrows, thus simplifying the code needed (@code-tree-defaults) --- `curved` is set to `true` here because multiple movements look better with curved arrows.
 
@@ -546,9 +547,9 @@ In summary, arrows have a lot of defaults, so you often end up with minimal code
           "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ]
            [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
           arrows: (
-            (from: "trace3", to: "T1"),
-            (from: "trace2", to: "DP1"),
-            (from: "trace1", to: "C1"),
+            (from: "t3", to: "T1"),
+            (from: "t2", to: "DP1"),
+            (from: "t1", to: "C1"),
           ),
           curved: true,
         )
@@ -564,9 +565,9 @@ In summary, arrows have a lot of defaults, so you often end up with minimal code
         #tree(
           "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
           arrows: (
-            (from: "trace3", to: "T1"),
-            (from: "trace2", to: "DP1"),
-            (from: "trace1", to: "C1"),
+            (from: "t3", to: "T1"),
+            (from: "t2", to: "DP1"),
+            (from: "t1", to: "C1"),
           ),
           curved: true,
         )
@@ -592,9 +593,9 @@ In summary, arrows have a lot of defaults, so you often end up with minimal code
           #tree(
             "[ CP [] [ C' [ C Ø_{[+Q]}+T+Mangez ] [ TP [ DP vous ] [ T' [ T *t*_i ] [ VP [ *t*_{DP} ] [ V' [V *t*_i ] [DP des pommes] ] ]  ] ] ] ]",
             arrows: (
-              (from: "trace3", to: "T1"),
-              (from: "trace2", to: "DP1"),
-              (from: "trace1", to: "C1"),
+              (from: "t3", to: "T1"),
+              (from: "t2", to: "DP1"),
+              (from: "t1", to: "C1"),
             ),
             curved: true,
             show-refs: true,
@@ -829,6 +830,104 @@ A final example includes longer annotation, from #cite(<fox2016qr>, form: "prose
 ]
 
 
+== Systems of spheres <sec-spheres>
+
+Not every semantic representation is a tree. For conditional and counterfactual semantics in the tradition of #cite(<lewis1973>, form: "prose"), propositions are drawn against a system of nested spheres of possible worlds centred on the world of evaluation. The `#spheres()` function draws exactly that: a filled solid sphere, four dotted concentric guides around it, and any number of labelled parabolic boundaries cutting across them, as shown in @fig-spheres.
+
+The five concentric lines are numbered from the centre outwards, which gives us the `depth` scale used throughout the function. Depth `3` is the boundary of the solid sphere itself, depths `1` and `2` lie inside it, and depths `4` and `5` lie outside it. Depth `0` refers to the centre of the diagram. The world of evaluation is set with `center-label`, which defaults to $w$.
+
+Each entry in `parabolas` is a dictionary. Only `label`, `angle`, and `depth` are required: `angle` places the parabola around the diagram in degrees, where `0` opens to the right and positive values rotate counterclockwise, and `depth` selects the circle its vertex sits on. The optional `touch-angle` controls where on that circle the vertex is placed, and defaults to the parabola's own angle. Because labels sit at the end of a curve rather than on a node, `label-position` and `label-offset` are available for the inevitable adjustments. Adding `shade: (inner, outer)` fills the region of that parabola lying between two circle depths, which is how @fig-spheres marks $phi^+$ and $phi$ without any separate `shading` entry. For regions defined by more than one parabola, the `shading` parameter takes entries with `inside`, `outside`, `band`, and `fill`: named inside regions are intersected, outside regions are subtracted, and the result is clipped to the radial band given by `band`. Naming a parabola with `id` is what makes it referable there.
+
+All parabolas share a single `parabola-opening`, and both tails of a parabola are drawn to the same extent, computed so that the endpoints clear the outermost guide. `parabola-tail-gap` pushes that virtual boundary further out when longer tails are wanted. The remaining arguments are cosmetic: `scale`, `circle-fill`, `shading-fill`, `stroke`, `guide-stroke`, and `line-width`. @tbl-spheres-args lists them all.
+
+#align(center)[
+  #grid(
+    columns: 1,
+    gutter: 1em,
+    align: (top, top),
+    [
+      #figure(
+        caption: [Code for @fig-spheres],
+        supplement: [Code],
+        kind: "code",
+      )[
+        #text(size: 0.98em)[
+          ```typst
+          #spheres(
+            center-label: [w],
+            parabolas: (
+              (
+                label: $phi^+$,
+                angle: 38,
+                touch-angle: 45,
+                depth: 4,
+                label-offset: (0.1, 0.30),
+                shade: (4, 5),
+              ),
+              (
+                label: $phi$,
+                angle: 41,
+                touch-angle: 45,
+                depth: 2,
+                label-offset: (0.68, 0.23),
+                shade: (2, 3),
+              ),
+              (
+                label: $psi$,
+                angle: 328,
+                touch-angle: 86,
+                depth: 3,
+                label-position: -1.0,
+                label-offset: (0.08, -0.04),
+              ),
+            ),
+          )
+          ```
+        ]
+      ] <code-spheres>
+    ],
+    [
+      #figure(
+        caption: [A Lewis-style system of spheres],
+        supplement: [Diagram],
+        kind: "diagram",
+      )[
+        #spheres(
+          center-label: [w],
+          parabolas: (
+            (
+              label: $phi^+$,
+              angle: 38,
+              touch-angle: 45,
+              depth: 4,
+              label-offset: (0.1, 0.30),
+              shade: (4, 5),
+            ),
+            (
+              label: $phi$,
+              angle: 41,
+              touch-angle: 45,
+              depth: 2,
+              label-offset: (0.68, 0.23),
+              shade: (2, 3),
+            ),
+            (
+              label: $psi$,
+              angle: 328,
+              touch-angle: 86,
+              depth: 3,
+              label-position: -1.0,
+              label-offset: (0.08, -0.04),
+            ),
+          ),
+        )
+      ] <fig-spheres>
+    ],
+  )
+]
+
+
+
 = Bilingual trees
 
 In one of the examples found in David Chiang's tutorial on `tikz-qtree` @tikz-qtree, English and Japanese trees are compared in a single figure. This is accomplished here with the function `#garden()`, which allows for multiple trees to be built on top of each other. Because two is probably the ideal number of trees for this use case, that is the scenario illustrated in @fig-tree-bi. Here, again, the tree number is referenced by a suffix. For example, if we want to link the second N in tree 1 to the third NP in tree 2, we add `("n2-1", "np3-2")`. This is relatively intuitive, and automatic labels allow for @code-tree-bi to be considerably more minimal than what we would need in ~#LaTeX. Finally, to have a "mirror image" of two trees, one of the trees must be upside-down. This is why the `direction` parameter exists, discussed further in @sec-direction. We simply specify `direction: "up"` to flip a tree vertically, as shown in @fig-tree-bi. The Japanese verb has been corrected from the original tutorial's apparent `土` typo to `座った`.
@@ -980,35 +1079,35 @@ The examples below demonstrate how to change line styles for arrows and how to d
 
     ```typst
     #move("[CP Who do you think [(CP)[TP __ ate the chocolate?]]]",
-      arrows: ((from: "trace1", to: "who1", dash: "wavy", color: red),),
+      arrows: ((from: "t1", to: "who1", dash: "wavy", color: red),),
       protect: true,)
     ```
 
     #move(
       "[CP Who do you think [(CP)[TP __ ate the chocolate?]]]",
       arrows: (
-        (from: "trace1", to: "who1", dash: "wavy", color: red),
+        (from: "t1", to: "who1", dash: "wavy", color: red),
       ),
       protect: true,
     )
 
     ```typst
     #move("[CP Who do you think [(CP)[TP t_i ate the chocolate?]]]",
-      arrows: ((from: "trace1", to: "who1", dash: "dashed"),),
+      arrows: ((from: "t1", to: "who1", dash: "dashed"),),
       protect: true,)
     ```
 
     #move(
       "[CP Who_i do you think [(CP)[TP t_i ate the chocolate?]]]",
       arrows: (
-        (from: "trace1", to: "who1", dash: "dashed", color: black),
+        (from: "t1", to: "who1", dash: "dashed", color: black),
       ),
       protect: true,
     )
 
     ```typst
     #move("[CP Who do you think [(CP)[TP t_i ate the chocolate?]]]",
-      arrows: ((from: "trace1", to: "who1", dash: "dotted"),),
+      arrows: ((from: "t1", to: "who1", dash: "dotted"),),
       delinks: (0,), // delink the first (0) arrow
       protect: true,)
     ```
@@ -1016,7 +1115,7 @@ The examples below demonstrate how to change line styles for arrows and how to d
     #move(
       "[CP Who_i do you think [(CP)[TP t_i ate the chocolate?]]]",
       arrows: (
-        (from: "trace1", to: "who1", dash: "dotted", color: black),
+        (from: "t1", to: "who1", dash: "dotted", color: black),
       ),
       delinks: (0,),
       protect: true,
@@ -1911,6 +2010,52 @@ The package is in its infancy, so there will be bugs and limitations. That is wh
 ]
 
 
+@tbl-spheres-args lists all available parameters in `#spheres()`, described in @sec-spheres.
+
+#text(size: 0.8em)[
+  #figure(
+    caption: [All arguments in `#spheres()`],
+    supplement: [Table],
+    kind: table,
+  )[
+    #table(
+      columns: (auto, auto, auto, 1fr),
+      stroke: none,
+      inset: (y: 0.8em),
+      align: (left + horizon),
+      table.header([*Argument*], [*Type*], [*Default*], [*Description*]),
+      table.hline(stroke: 0.75pt),
+      [`center-label`], [content], [`$w$`], [Label for the world of evaluation at the centre],
+      table.hline(stroke: 0.25pt),
+      [`parabolas`],
+      [array],
+      [`()`],
+      [Proposition boundaries. Each entry is a dict with `label`, `angle`, `depth`, and optionally `id`, `touch-angle`, `label-position`, `label-offset`, `shade`],
+      table.hline(stroke: 0.25pt),
+      [`shading`],
+      [array],
+      [`()`],
+      [Regions built from named parabolas. Keys are `inside`, `outside`, `band`, `fill`],
+      table.hline(stroke: 0.25pt),
+      [`parabola-opening`], [number], [`4.0`], [Shared opening width of every parabola],
+      table.hline(stroke: 0.25pt),
+      [`parabola-tail-gap`], [number], [`1.0`], [Extra distance past the outermost guide that tails extend to],
+      table.hline(stroke: 0.25pt),
+      [`scale`], [number], [`1.0`], [Uniform scale factor for the whole diagram],
+      table.hline(stroke: 0.25pt),
+      [`circle-fill`], [color], [`luma(88%)`], [Fill of the solid sphere],
+      table.hline(stroke: 0.25pt),
+      [`shading-fill`], [color], [`luma(70%)`], [Default fill for shaded regions],
+      table.hline(stroke: 0.25pt),
+      [`stroke`], [color], [`luma(15%)`], [Colour of the sphere outline and parabolas],
+      table.hline(stroke: 0.25pt),
+      [`guide-stroke`], [color], [`luma(58%)`], [Colour of the four dotted guide circles],
+      table.hline(stroke: 0.25pt),
+      [`line-width`], [number], [`1.0`], [Line width multiplier],
+    )
+  ] <tbl-spheres-args>
+]
+
 = How can I use Typst offline? <app-editor>
 
 This vignette assumes that you know about Typst, but you may not be very familiar with it. That's why this section exists. For example, while the online app at #link("https://typst.app")[Typst.app] is very useful and practical, most of us prefer to work offline. *How can you use Typst offline then?*
@@ -1919,7 +2064,7 @@ One of the best IDE options out there is to use VS Code with the extension Tinym
 
 = How do packages work in Typst? <app-packages>
 
-If you've used R, Python, #LaTeX, etc., you are used to installing packages and then importing them. This vignette has imported #logo, of course, which in turn imports CeTZ @cetz as a dependency. As you start using Typst, you will notice that it works a bit differently, and this may not be self-evident at first. As seen in @sec-installation, there are basically two ways to load and use a package, both of which require the function `#import` inside your `typ` document --- notice that you don't install a package _per se_. The traditional way is to import a package from the official Typst collection/repository, which means adding `#import "@preview/synkit:0.0.41": *` to your `typ` document if you plan on using #logo (assuming version `0.0.41`). The `@preview` bit indicates that the package comes from Typst's official repository. This is what you should do most of the time. Typst packages are cached once you compile a document with a given package.
+If you've used R, Python, #LaTeX, etc., you are used to installing packages and then importing them. This vignette has imported #logo, of course, which in turn imports CeTZ @cetz as a dependency. As you start using Typst, you will notice that it works a bit differently, and this may not be self-evident at first. As seen in @sec-installation, there are basically two ways to load and use a package, both of which require the function `#import` inside your `typ` document --- notice that you don't install a package _per se_. The traditional way is to import a package from the official Typst collection/repository, which means adding `#import "@preview/synkit:0.1.0": *` to your `typ` document if you plan on using #logo (assuming version `0.1.0`). The `@preview` bit indicates that the package comes from Typst's official repository. This is what you should do most of the time. Typst packages are cached once you compile a document with a given package.
 
 Another option is to fork, clone or download a package from GitHub and import its `lib.typ` file instead: `#import "PACKAGE_DIRECTORY/lib.typ": *`. There's only one caveat: Typst restricts imports to files within the compilation root and its subdirectories (i.e., you can't load `lib.typ` if the package is in a parent directory or elsewhere in your system). Thus, you may need to use symlinks (this is the same strategy applied to `bib` files if you don't want to have a local copy of your references).
 
@@ -1933,7 +2078,7 @@ Another option is to fork, clone or download a package from GitHub and import it
   ```,
 )
 
-Finally, Typst's repository contains sub-directories to keep track of each version of a given package. When a package is updated, nothing happens to the existing version of the package. Instead, a new directory is added with the updated version. That's why you specify the _version_ of a package upon importing: `#import "@preview/synkit:0.0.41": *`. If you go to Typst's repository on GitHub, you will see that the repository for #logo has one sub-directory for each version of the package. This means that you always know which version of a package you are using. And because previous versions are not removed, backwards compatibility is not an issue. If you are used to #LaTeX and you have the habit of frequently updating your packages, you will appreciate this, as there's no risk of recompiling your document and running into errors because one of the packages you use has been updated with breaking changes.
+Finally, Typst's repository contains sub-directories to keep track of each version of a given package. When a package is updated, nothing happens to the existing version of the package. Instead, a new directory is added with the updated version. That's why you specify the _version_ of a package upon importing: `#import "@preview/synkit:0.1.0": *`. If you go to Typst's repository on GitHub, you will see that the repository for #logo has one sub-directory for each version of the package. This means that you always know which version of a package you are using. And because previous versions are not removed, backwards compatibility is not an issue. If you are used to #LaTeX and you have the habit of frequently updating your packages, you will appreciate this, as there's no risk of recompiling your document and running into errors because one of the packages you use has been updated with breaking changes.
 
 
 #pagebreak()

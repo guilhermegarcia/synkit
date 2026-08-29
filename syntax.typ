@@ -1488,12 +1488,16 @@
     }
     (name-to-pos, arrow-off-map, label-hw-map) = _build-down(tree, name-to-pos, arrow-off-map, label-hw-map)
 
-    // Build trace anchors: trace1, trace2, etc.
+    // Give every trace's own anchor its trace-specific position/offset.
     let trace-infos = _find-traces(tree)
-    let trace-count = 0
+    // Traces swallowed by a triangle render no node of their own, so show-refs
+    // never sees them; collect their positions here and inject them below.
+    let trace-tri-refs = ()
     for ti in trace-infos {
-      trace-count = trace-count + 1
-      let trace-anchor = "trace" + str(trace-count)
+      // The trace's own anchor (t1, t2, ...) is the only name for it. Below we
+      // give that name a trace-tuned arrow offset, and register a position for
+      // it when the trace is swallowed by a triangle and has none otherwise.
+      let trace-anchor = ti.leaf-anchor
       // Check if this trace is inside a triangle
       let parent-is-tri = ti.parent-anchor in tri-set
       if parent-is-tri {
@@ -1539,22 +1543,35 @@
               (down-x + gdx * center-shift, down-y - half-w + frac * 2 * half-w + x-sub-correction)
             }
             name-to-pos.insert(trace-anchor, (trace-x, trace-y, _loff))
+            // Arrows resolve a bare name to its "-down" form when one exists,
+            // so the trace tuning has to live under both keys.
+            name-to-pos.insert(trace-anchor + "-down", (trace-x, trace-y, _loff))
+            trace-tri-refs.push((pos: (trace-x, trace-y), name: trace-anchor))
             // Extra clearance: Typst's sub[] positions subscripts beyond the
             // content bounding box that CeTZ measures for anchor placement.
             // The overflow is constant in physical units, so we divide by
             // scale to keep the physical gap consistent across scales.
             let trace-off = regular-off + 0.20 / scale
             arrow-off-map.insert(trace-anchor, trace-off)
-            label-hw-map.insert(trace-anchor, _rendered-len(ti.label) * 0.28 / 2 + 0.05)
+            arrow-off-map.insert(trace-anchor + "-down", trace-off)
+            let trace-hw = _rendered-len(ti.label) * 0.28 / 2 + 0.05
+            label-hw-map.insert(trace-anchor, trace-hw)
+            label-hw-map.insert(trace-anchor + "-down", trace-hw)
           }
         }
       } else {
         // Non-triangle: trace is a regular leaf, use its position
         if ti.leaf-anchor in name-to-pos {
-          name-to-pos.insert(trace-anchor, name-to-pos.at(ti.leaf-anchor))
+          let trace-pos = name-to-pos.at(ti.leaf-anchor)
           let trace-off = _text-half-h + 0.05
-          arrow-off-map.insert(trace-anchor, trace-off)
-          label-hw-map.insert(trace-anchor, _label-half-w(ti.label))
+          let trace-hw = _label-half-w(ti.label)
+          // Arrows resolve a bare name to its "-down" form when one exists, so
+          // the trace tuning has to live under both keys.
+          for key in (trace-anchor, trace-anchor + "-down") {
+            name-to-pos.insert(key, trace-pos)
+            arrow-off-map.insert(key, trace-off)
+            label-hw-map.insert(key, trace-hw)
+          }
         }
       }
     }
@@ -1685,6 +1702,13 @@
         let ref-side-down = if direction == "up" { "below" } else if direction == "right" {
           "after"
         } else if direction == "left" { "before" } else { "above" }
+
+        // Traces inside triangles have no node of their own to label.
+        if show-refs {
+          for tr in trace-tri-refs {
+            ref-items.push((pos: tr.pos, name: tr.name, side: ref-side-down))
+          }
+        }
 
         // ── Draw edges ──────────────────────────────────────────────────
         // Triangle nodes still get a line FROM their parent TO them;

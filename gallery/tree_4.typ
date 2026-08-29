@@ -16,7 +16,7 @@ A less serious tree.
     ("S1", green.darken(20%)),
     ("NP1", red),
     ("NP2", red),
-    ("P1down", blue),
+    ("P1-down", blue),
     ("VP1", "V1", orange),
   ),
   font: "Comic Sans MS",

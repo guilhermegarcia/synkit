@@ -83,7 +83,6 @@
 /// the result is clipped to the radial band `(inner-depth, outer-depth)`.
 /// Use depth `0` for the centre of the diagram.
 #let spheres(
-  circles: 1,
   center-label: $w$,
   parabolas: (),
   shading: (),
@@ -96,7 +95,6 @@
   guide-stroke: luma(58%),
   line-width: 1.0,
 ) = {
-  assert(type(circles) == int and circles == 1, message: "spheres: version 1 supports exactly one solid circle")
   assert(type(scale) == int or type(scale) == float, message: "spheres: scale must be numeric")
   assert(scale > 0, message: "spheres: scale must be greater than zero")
   assert(parabola-opening > 0, message: "spheres: parabola-opening must be greater than zero")
