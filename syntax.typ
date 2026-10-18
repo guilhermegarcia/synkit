@@ -1536,7 +1536,9 @@
             let center-shift = tri-text-gap + _text-half-h * content-size
             // sub[] extends the trace word visually to the right (in physical
             // units), shifting its apparent center; compensate in canvas units.
-            let x-sub-correction = -0.08 / scale
+            // Only subscripted traces (t_i) carry a sub[]; *t* does not.
+            let has-sub = ti.label.contains("_")
+            let x-sub-correction = if has-sub { -0.08 / scale } else { 0.0 }
             let (trace-x, trace-y) = if vert-growth {
               (down-x - half-w + frac * 2 * half-w + x-sub-correction, down-y + gdy * center-shift)
             } else {
@@ -1551,7 +1553,7 @@
             // content bounding box that CeTZ measures for anchor placement.
             // The overflow is constant in physical units, so we divide by
             // scale to keep the physical gap consistent across scales.
-            let trace-off = regular-off + 0.20 / scale
+            let trace-off = regular-off + (if has-sub { 0.20 / scale } else { 0.0 })
             arrow-off-map.insert(trace-anchor, trace-off)
             arrow-off-map.insert(trace-anchor + "-down", trace-off)
             let trace-hw = _rendered-len(ti.label) * 0.28 / 2 + 0.05
@@ -1965,6 +1967,68 @@
             }
           }
 
+          // Parse degree suffix: "np1-300" → (base: "np1", degree: 300)
+          // Checks full name in name-to-pos first to avoid conflicts with
+          // anchors that naturally end in dash-digits (e.g. "n-31" from label "N 3").
+          let _parse-deg(name) = {
+            if name in name-to-pos { return (name, none) }
+            let m = name.match(regex("^(.+)-(\d{1,3})$"))
+            if m != none {
+              let base = m.captures.at(0)
+              let deg = int(m.captures.at(1))
+              if base in name-to-pos { return (base, deg) }
+            }
+            (name, none)
+          }
+
+          // Resolve arrow names:
+          // - "vp3" or "vp3-down" → leaf content below node (default)
+          // - "vp3-top" → node label itself (arrow exits from side)
+          let _resolve(name) = {
+            if name.ends-with("-top") or name.ends-with("-down") {
+              name
+            } else {
+              let base = name
+              if base + "-down" in name-to-pos { base + "-down" } else { base }
+            }
+          }
+
+          // Rectangular arrows share one floor. It must clear the tree and also
+          // lie beyond every arrow endpoint, otherwise an endpoint offset (e.g. a
+          // trace's extra clearance) can reach past the floor and the vertical
+          // leg vanishes or points the wrong way.
+          let rect-floor = {
+            let base-clearance = 1.0
+            let leg-min = 0.25 // shortest visible leg from an endpoint to the floor
+            let sign = if direction == "up" or direction == "left" { 1 } else { -1 }
+            let along(x, y) = if direction == "right" or direction == "left" { x } else { y }
+            let floor = y-floor + sign * base-clearance
+            for arrow in arrows {
+              let is-dict = type(arrow) == dictionary
+              let raws = if is-dict { (arrow.at("from"), arrow.at("to")) } else { (arrow.at(0), arrow.at(1)) }
+              for (i, raw) in raws.enumerate() {
+                let (base, deg) = _parse-deg(raw)
+                // -top endpoints exit sideways at label height: never near the floor
+                if base.ends-with("-top") { continue }
+                let name = _resolve(base)
+                if name not in name-to-pos { continue }
+                let (px, py, _) = name-to-pos.at(name)
+                // Same offsets as the endpoint code below (from gets +0.15)
+                let off = arrow-off-map.at(name, default: 0.45) + (if i == 0 { 0.15 } else { 0.0 })
+                let (ex, ey) = if deg != none {
+                  let rad = deg * calc.pi / 180
+                  let hw = label-hw-map.at(name, default: 0.35) + 0.25 // _deg-h-pad
+                  (px + hw * calc.cos(rad), py + off * calc.sin(rad))
+                } else {
+                  (px + gdx * off, py + gdy * off)
+                }
+                let p = along(ex, ey) + sign * leg-min
+                floor = if sign < 0 { calc.min(floor, p) } else { calc.max(floor, p) }
+              }
+            }
+            floor
+          }
+
           let rect-count = 0 // counter for staggering rectangular arrows
           for arrow in arrows {
             let is-dict = type(arrow) == dictionary
@@ -1981,33 +2045,9 @@
             // Check if this arrow should be delinked (match raw from or to name)
             let is-delinked = delinks.any(d => d == raw-from or d == raw-to)
 
-            // Parse degree suffix: "np1-300" → (base: "np1", degree: 300)
-            // Checks full name in name-to-pos first to avoid conflicts with
-            // anchors that naturally end in dash-digits (e.g. "n-31" from label "N 3").
-            let _parse-deg(name) = {
-              if name in name-to-pos { return (name, none) }
-              let m = name.match(regex("^(.+)-(\d{1,3})$"))
-              if m != none {
-                let base = m.captures.at(0)
-                let deg = int(m.captures.at(1))
-                if base in name-to-pos { return (base, deg) }
-              }
-              (name, none)
-            }
             let (from-base, from-deg) = _parse-deg(raw-from)
             let (to-base, to-deg) = _parse-deg(raw-to)
 
-            // Resolve arrow names:
-            // - "vp3" or "vp3-down" → leaf content below node (default)
-            // - "vp3-top" → node label itself (arrow exits from side)
-            let _resolve(name) = {
-              if name.ends-with("-top") or name.ends-with("-down") {
-                name
-              } else {
-                let base = name
-                if base + "-down" in name-to-pos { base + "-down" } else { base }
-              }
-            }
             // Check for -top suffix (node label as endpoint)
             let from-is-top = from-base.ends-with("-top")
             let to-is-top = to-base.ends-with("-top")
@@ -2131,12 +2171,10 @@
               } else {
                 // Rectangular (right-angle) path along growth axis
                 // Base floor: same for all arrows (endpoints drop to here)
-                let base-clearance = 1.0
                 let stagger = rect-count * 0.5
                 rect-count = rect-count + 1
                 let sign = if direction == "up" or direction == "left" { 1 } else { -1 }
-                let base-floor = y-floor + sign * base-clearance
-                let bar-val = base-floor + sign * stagger
+                let bar-val = rect-floor + sign * stagger
                 let hb = head-back
                 if direction == "right" or direction == "left" {
                   // Horizontal growth: vertical bar

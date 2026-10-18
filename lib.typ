@@ -1,5 +1,5 @@
 // synkit — A toolkit to draw syntax trees
-// Version 0.1.0
+// Version 0.1.1
 
 #import "syntax.typ": garden, tree
 #import "movement.typ": blank, move
