@@ -10,6 +10,7 @@ version: 0.1.1
 date-released: 2026-10-17
 url: "https://github.com/guilhermegarcia/synkit"
 repository-code: "https://github.com/guilhermegarcia/synkit"
+doi: 10.5281/zenodo.19407080
 license: MIT
 keywords:
   - syntax
