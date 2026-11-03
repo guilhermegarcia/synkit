@@ -1,5 +1,5 @@
 // synkit — A toolkit to draw syntax trees
-// Version 0.1.1
+// Version 0.2.0
 
 #import "syntax.typ": garden, tree
 #import "movement.typ": blank, move
@@ -23,6 +23,8 @@
 /// by `garden()` (`input`, `direction`, `spread`, `drop`, `content-size`,
 /// `node-size`, `triangle`, `terminal-branch`, `bottom`).
 /// Node anchors are suffixed with tree index: `"np1-1"` = first NP in tree 1.
+/// Set `show-refs: true` to print the name of every node: bare names target
+/// leaves and triangle content, `-top` names target node labels.
 ///
 /// ```typ
 /// #garden(

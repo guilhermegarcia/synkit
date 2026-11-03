@@ -2,7 +2,7 @@
 // Draws a solid sphere of worlds, four dotted concentric guides, and
 // labelled parabolic proposition boundaries.
 
-#import "@preview/cetz:0.5.2"
+#import "@preview/cetz:0.5.3"
 
 #let _rotate(point, angle) = {
   let (x, y) = point

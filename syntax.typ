@@ -2,7 +2,7 @@
 // Draws phrase structure trees from bracket notation input.
 // Usage: #tree("[CP [C' [C did] [TP [DP she] [T' [T e] [VP [V leave]]]]]]")
 
-#import "@preview/cetz:0.5.2"
+#import "@preview/cetz:0.5.3"
 #import "_symbols.typ": apply-symbols as _apply-symbols, symbol-map as _symbol-map
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -1003,6 +1003,44 @@
 }
 
 // ── Delink mark ─────────────────────────────────────────────────────────────
+// Box drawn by highlight. Outset keeps the word where it would be without a box.
+// The bottom edge always clears descenders, so boxes in one row line up. Must be
+// called inside a context block.
+#let _highlight-box(body, size, col) = {
+  let descent = measure(text(size: size, top-edge: "baseline", bottom-edge: "bounds", "gjpqy")).height
+  box(stroke: 0.5pt + col, outset: (x: 2pt, top: 2pt, bottom: descent + 1pt), body)
+}
+
+// Extra distance for a show-refs tag on a label anchored at one edge: the word
+// grows away from its point, so the tag must clear it.
+#let _ref-clear(anchor) = if anchor in ("north", "base") { 0.14 } else { 0 }
+
+// Debug tag printed by show-refs: a reference name in a small box, placed on
+// the given side of pos ("below", "above", "before" or "after").
+#let _ref-tag(pos, name, side, fsz) = {
+  let (x, y) = pos
+  let off = 0.26
+  let (rx, ry, anch) = if side == "below" {
+    (x, y - off, "north")
+  } else if side == "above" {
+    (x, y + off, "base")
+  } else if side == "before" {
+    (x - off, y, "east")
+  } else {
+    (x + off, y, "west")
+  }
+  cetz.draw.content(
+    (rx, ry),
+    box(
+      fill: white,
+      stroke: 0.25pt + red,
+      inset: (x: 0.22em, y: 0.10em),
+      text(size: fsz, fill: luma(55%), font: "Courier New", weight: "bold", name),
+    ),
+    anchor: anch,
+  )
+}
+
 // Draws two perpendicular bars at a given point along a given tangent direction.
 // (mx, my): midpoint on the path; (tang-x, tang-y): tangent direction (will be normalized).
 #let _draw-delink(mx, my, tang-x, tang-y, sw) = {
@@ -1668,34 +1706,11 @@
         let sw = 0.05em * scale-factor * line-width
         let arrow-sw = 0.018
         let arrow-mark-scale = 0.5
-        let ref-color = luma(55%)
         let ref-fsz = fsz * 0.55
         let ref-items = ()
 
         let draw-ref(pos, name, side) = {
-          if show-refs {
-            let (x, y) = pos
-            let off = 0.26
-            let (rx, ry, anch) = if side == "below" {
-              (x, y - off, "north")
-            } else if side == "above" {
-              (x, y + off, "south")
-            } else if side == "before" {
-              (x - off, y, "east")
-            } else {
-              (x + off, y, "west")
-            }
-            content(
-              (rx, ry),
-              box(
-                fill: white,
-                stroke: 0.25pt + red,
-                inset: (x: 0.22em, y: 0.10em),
-                text(size: ref-fsz, fill: ref-color, font: "Courier New", weight: "bold", name),
-              ),
-              anchor: anch,
-            )
-          }
+          if show-refs { _ref-tag(pos, name, side, ref-fsz) }
         }
 
         let ref-side-node = if direction == "up" { "above" } else if direction == "right" {
@@ -1823,7 +1838,7 @@
           let label-content = base-label
           let boxed = e.anchor in box-set
           let label-body = if boxed {
-            box(stroke: 0.5pt + col, inset: 2pt, label-content)
+            _highlight-box(label-content, sz, col)
           } else {
             label-content
           }
@@ -1853,7 +1868,7 @@
               // to avoid paragraph-level line spacing from content joins
               let rendered = words.map(w => _display-label(w))
               let joined = text(size: content-fsz, fill: tri-col, rendered.join([ ]))
-              if tri-leaf-boxed { box(stroke: 0.5pt + tri-col, inset: 2pt, joined) } else { joined }
+              if tri-leaf-boxed { _highlight-box(joined, content-fsz, tri-col) } else { joined }
             })
             let tri-align = if direction == "right" { left } else if direction == "left" { right } else { center }
             let tri-body = if line-contents.len() > 1 {
@@ -1868,7 +1883,7 @@
             // Bottom-aligned triangles should use the same directional anchoring
             // as regular terminals so mixed triangle/non-triangle leaves keep the
             // same shape-to-text gap.
-            let tri-anchor = if direction == "up" { "south" } else if (
+            let tri-anchor = if direction == "up" { "base" } else if (
               direction == "down"
             ) { "north" } else if (
               direction == "right"
@@ -1887,22 +1902,26 @@
               let tri-text-gap = if is-horiz { 0.80 } else { 0.05 }
               lx = lx + gdx * tri-text-gap
               ly = ly + gdy * tri-text-gap
-              cur-anchor = if direction == "up" { "south" } else if direction == "down" { "north" } else if (
+              cur-anchor = if direction == "up" { "base" } else if direction == "down" { "north" } else if (
                 direction == "right"
               ) { "west" } else { "east" }
             } else if not is-horiz and is-terminal {
               // Vertical terminal content should grow away from the tree, not be
               // centered on the terminal point. Center anchoring makes words with
               // different glyph shapes look vertically misaligned even when their
-              // layout coordinates are identical.
-              cur-anchor = if direction == "up" { "south" } else { "north" }
+              // layout coordinates are identical. "up" uses "base" because CeTZ's
+              // "south" is the bottom of the ink, so a descender would lift the word.
+              cur-anchor = if direction == "up" { "base" } else { "north" }
             } else if is-horiz and is-terminal and e.par != none {
               let pull = 0.4 // fraction of distance to reclaim
               lx = lx + (e.par.at(0) - lx) * pull
               ly = ly + (e.par.at(1) - ly) * pull
             }
             content((lx, ly), label-body, anchor: cur-anchor)
-            if show-refs { ref-items.push((pos: (lx, ly), name: e.anchor, side: ref-side-node)) }
+            if show-refs {
+              let ref-pos = (lx + gdx * _ref-clear(cur-anchor), ly + gdy * _ref-clear(cur-anchor))
+              ref-items.push((pos: ref-pos, name: e.anchor, side: ref-side-node))
+            }
           }
           // Draw circled number to the left of the node
           let num-display = numbers-map.at(e.anchor, default: none)
@@ -2288,6 +2307,9 @@
 // The "-down" variant goes before the index: "np1-down-1".
 //
 // Equivalence entries: ("np1-1", "np1-2") or (from: "np1-1", to: "np1-2", ...)
+//
+// show-refs prints the name to use in equivalence: bare names for leaves and
+// triangle content, "-top" names for node labels.
 
 #let garden(
   ..trees,
@@ -2296,6 +2318,7 @@
   scale: 1.0,
   line-width: 1.0,
   font: none,
+  show-refs: false,
 ) = {
   let specs = trees.pos()
   let scale-factor = scale
@@ -2564,6 +2587,9 @@
       cetz.canvas(length: scale-factor * 1cm, {
         import cetz.draw: *
 
+        let ref-fsz = fsz * 0.55
+        let ref-items = ()
+
         // Draw each tree
         for td in all-td {
           let nodes = td.nodes
@@ -2573,6 +2599,12 @@
           let is-horiz = td.is-horiz
           let node-fsz = fsz * td.node-size
           let content-fsz = fsz * td.content-size
+          let ref-side-node = if direction == "up" { "above" } else if direction == "right" {
+            "before"
+          } else if direction == "left" { "after" } else { "below" }
+          let ref-side-down = if direction == "up" { "below" } else if direction == "right" {
+            "after"
+          } else if direction == "left" { "before" } else { "above" }
 
           // ── Edges ──
           for e in nodes {
@@ -2632,6 +2664,7 @@
 
             if e.at("is-triangle", default: false) {
               content((e.x, e.y), label-body, anchor: label-anchor)
+              if show-refs { ref-items.push((pos: (e.x, e.y), name: e.anchor + td.sfx + "-top", side: ref-side-node)) }
               let tri-leaves = e.at("tri-leaves")
               let lines = ((),)
               for leaf in tri-leaves {
@@ -2648,10 +2681,12 @@
               let tri-text-gap = if is-bottom-aligned { 0 } else if is-horiz { 0.80 } else { 0.05 }
               let tlx2 = e.at("tri-x", default: e.x)
               let tly2 = e.at("tri-y")
-              let tri-anchor = if direction == "up" { "south" } else if (
+              let tri-anchor = if direction == "up" { "base" } else if (
                 direction == "down"
               ) { "north" } else if direction == "right" { "west" } else { "east" }
-              content((tlx2 + gdx * tri-text-gap, tly2 + gdy * tri-text-gap), tri-body, anchor: tri-anchor)
+              let tri-label-pos = (tlx2 + gdx * tri-text-gap, tly2 + gdy * tri-text-gap)
+              content(tri-label-pos, tri-body, anchor: tri-anchor)
+              if show-refs { ref-items.push((pos: tri-label-pos, name: e.anchor + td.sfx, side: ref-side-down)) }
             } else {
               let (lx, ly) = (e.x, e.y)
               let cur-anchor = label-anchor
@@ -2659,9 +2694,14 @@
                 lx = lx + (e.par.at(0) - lx) * 0.4
                 ly = ly + (e.par.at(1) - ly) * 0.4
               } else if not is-horiz and e.at("is-terminal", default: false) {
-                cur-anchor = if direction == "up" { "south" } else { "north" }
+                cur-anchor = if direction == "up" { "base" } else { "north" }
               }
               content((lx, ly), label-body, anchor: cur-anchor)
+              if show-refs {
+                let ref-name = e.anchor + td.sfx + if e.is-leaf { "" } else { "-top" }
+                let ref-pos = (lx + gdx * _ref-clear(cur-anchor), ly + gdy * _ref-clear(cur-anchor))
+                ref-items.push((pos: ref-pos, name: ref-name, side: ref-side-node))
+              }
             }
           }
         }
@@ -2729,6 +2769,11 @@
             }
             line((fx, fy), (tx, ty), stroke: eq-stroke)
           }
+        }
+
+        // ── Draw debug references last so they stay in the foreground ───
+        for ref-item in ref-items {
+          _ref-tag(ref-item.pos, ref-item.name, ref-item.side, ref-fsz)
         }
       })
     })
