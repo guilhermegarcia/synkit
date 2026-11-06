@@ -19,7 +19,7 @@
 ## Installation
 
 ```typst
-#import "@preview/synkit:0.2.0": *
+#import "@preview/synkit:0.2.1": *
 ```
 
 If you are working from a local clone instead, import `lib.typ` directly:

@@ -1035,7 +1035,7 @@
       fill: white,
       stroke: 0.25pt + red,
       inset: (x: 0.22em, y: 0.10em),
-      text(size: fsz, fill: luma(55%), font: "Courier New", weight: "bold", name),
+      text(size: fsz, fill: luma(55%), font: "DejaVu Sans Mono", weight: "bold", name),
     ),
     anchor: anch,
   )
