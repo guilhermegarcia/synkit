@@ -287,10 +287,10 @@ Any questions, comments or suggestions should be posted to the repository below 
 
 #heading(numbering: none, outlined: false)[Version history]
 
-`0.2.1` - Bug fix: `show-refs` tags use DejaVu Sans Mono, which Typst embeds, instead of Courier New, which is missing on Linux and in web apps\
-`0.2.0` - `#garden()` now accepts `show-refs`. Bug fixes: words with descenders stay on the baseline in `direction: "up"` trees; `highlight` no longer shifts boxed words, and its box clears descenders; `show-refs` tags no longer cover terminal words\
-`0.1.1` - Bug fix: rectangular arrows now leave a trace with a visible vertical leg (the shared floor clears every arrow endpoint); unsubscripted traces in triangles (`*t*`) no longer get subscript clearance\
-`0.1.0` - New `#spheres()` function for Lewis-style systems of spheres (@sec-spheres). Traces now use their own label (`t1`, `t2`, ...); `show-refs` displays the trace label\
+`0.2.1` - Fixes: `show-refs` font on Linux and the web; trace labels and delinks in `#move()`\
+`0.2.0` - `#garden()` accepts `show-refs`; fixes for `"up"` trees and `highlight`\
+`0.1.1` - Fixes: visible trace leg on rectangular arrows; `*t*` spacing in triangles\
+`0.1.0` - New function `#spheres()` (@sec-spheres); traces use their own label\
 `0.0.41` - Bug fixes \
 `0.0.4` - Fixed bugs in examples \
 `0.0.3` - Bug fix: Greek letters in subscripts/superscripts now render correctly \
@@ -1057,11 +1057,11 @@ By default, stacked trees will use `bottom: true` to ensure that alignment is op
 
 In-line representations also make use of automatic labelling. Every word we add to a sentence is its own label. As a result, we can easily draw an arrow from `who2` to `who1` in @fig-in-line. Because the arrows extend below the text baseline, they may overlap with subsequent content. Setting `protect: true` reserves vertical space below the output to prevent this. By default, `protect` is `false`, which is the correct setting when `#move()` is placed inside a table cell (e.g., in numbered examples with `#eg()`), where extra height would misalign adjacent cells --- see @sec-examples below. Because these representations are almost always used in the context of a numbered example, `protect: false` is favoured.
 
-The examples below demonstrate how to change line styles for arrows and how to delink a given arrow using its position. For example, if `delinks: (0,)`, a delink is added to the first movement arrow added to the code --- see last two examples in @fig-in-line.
+The examples below demonstrate how to change line styles for arrows and how to delink a given arrow using its position. For example, if `delinks: (0,)`, a delink is added to the first movement arrow added to the code --- see the last example in @fig-in-line. Traces written as `__` or `t_i` are labelled `t1`, `t2`, etc., as in trees.
 
 #align(center)[
   #figure(
-    caption: [In-line movement, traces, arrows and delinks (emojis also work with labels)],
+    caption: [In-line movement, traces, arrows and delinks],
     supplement: "Example",
     kind: "inline",
   )[
@@ -1095,7 +1095,7 @@ The examples below demonstrate how to change line styles for arrows and how to d
     )
 
     ```typst
-    #move("[CP Who do you think [(CP)[TP t_i ate the chocolate?]]]",
+    #move("[CP Who_i do you think [(CP)[TP t_i ate the chocolate?]]]",
       arrows: ((from: "t1", to: "who1", dash: "dashed"),),
       protect: true,)
     ```
@@ -1109,7 +1109,7 @@ The examples below demonstrate how to change line styles for arrows and how to d
     )
 
     ```typst
-    #move("[CP Who do you think [(CP)[TP t_i ate the chocolate?]]]",
+    #move("[CP Who_i do you think [(CP)[TP t_i ate the chocolate?]]]",
       arrows: ((from: "t1", to: "who1", dash: "dotted"),),
       delinks: (0,), // delink the first (0) arrow
       protect: true,)
@@ -1123,11 +1123,22 @@ The examples below demonstrate how to change line styles for arrows and how to d
       delinks: (0,),
       protect: true,
     )
+  ] <fig-in-line>
+]
+
+The arrows in @fig-in-line-multi stack below the sentence in the order they are listed, and `delinks: (0, 2)` marks the first and third of them.
+
+#align(center)[
+  #figure(
+    caption: [Several arrows and delinks in one sentence (emojis also work as labels)],
+    supplement: "Example",
+    kind: "inline",
+  )[
 
     ```typst
       #move("[S A simple sentence with multiple 🫠 arrows and multiple delinks and one 🫠]",
         arrows: (
-          (from: "simple1", to: "show1", dash: "dotted", color: black),
+          (from: "simple1", to: "sentence1", dash: "dotted", color: black),
           (from: "arrows1", to: "a1", dash: "dashed", color: red),
           (from: "🫠1", to: "🫠2", dash: "wavy", color: blue),
           (from: "multiple1", to: "and1", dash: "solid", color: green),
@@ -1139,7 +1150,7 @@ The examples below demonstrate how to change line styles for arrows and how to d
     #move(
       "[S A simple sentence with multiple 🫠 arrows and multiple delinks and one 🫠]",
       arrows: (
-        (from: "simple1", to: "show1", dash: "dotted", color: black),
+        (from: "simple1", to: "sentence1", dash: "dotted", color: black),
         (from: "arrows1", to: "a1", dash: "dashed", color: red),
         (from: "🫠1", to: "🫠2", dash: "wavy", color: blue),
         (from: "multiple1", to: "and1", dash: "solid", color: green),
@@ -1147,12 +1158,12 @@ The examples below demonstrate how to change line styles for arrows and how to d
       delinks: (0, 2),
       protect: true,
     )
-  ] <fig-in-line>
+  ] <fig-in-line-multi>
 ]
 
 = Numbered examples <sec-examples>
 
-The examples shown in @fig-in-line are usually placed in numbered examples. This can be accomplished with the function `#eg()`, which is the same implementation found in #phonokit, to keep both packages consistent.
+The examples shown in @fig-in-line and @fig-in-line-multi are usually placed in numbered examples. This can be accomplished with the function `#eg()`, which is the same implementation found in #phonokit, to keep both packages consistent.
 
 #v(2em)
 #important(title: "Important.")[

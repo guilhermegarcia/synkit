@@ -226,16 +226,15 @@
       let c = counts.at(key, default: 0) + 1
       counts.insert(key, c)
       result.push((..tok, anchor: key + str(c)))
-    } else if tok.type == "blank" {
-      let key = "trace"
-      let c = counts.at(key, default: 0) + 1
-      counts.insert(key, c)
-      result.push((..tok, anchor: key + str(c)))
-    } else if tok.type == "t-trace" {
-      let key = "trace"
-      let c = counts.at(key, default: 0) + 1
-      counts.insert(key, c)
-      result.push((..tok, anchor: key + str(c)))
+    } else if tok.type == "blank" or tok.type == "t-trace" {
+      // Traces (`__`, `t_i`) are named t1, t2, ..., as in trees. They share
+      // the pool with a bare word "t". `trace1`, `trace2`, ... still work as
+      // aliases for code written before 0.2.1.
+      let c = counts.at("t", default: 0) + 1
+      counts.insert("t", c)
+      let tc = counts.at("trace", default: 0) + 1
+      counts.insert("trace", tc)
+      result.push((..tok, anchor: "t" + str(c), alias: "trace" + str(tc)))
     } else if tok.type == "bracket-open" and tok.label != "" {
       // Strip parens for anchor naming: (CP) → cp
       let raw = tok.label.replace("(", "").replace(")", "")
@@ -374,6 +373,13 @@
         name-to-pos.insert(e.anchor, e.anchor-x)
       }
     }
+    // Aliases go in second, so a real anchor always wins a name clash.
+    for e in entries {
+      let alias = e.at("alias", default: none)
+      if alias != none and alias not in name-to-pos {
+        name-to-pos.insert(alias, e.anchor-x)
+      }
+    }
     let _norm = luma(15%)
     let sw = 0.018 * line-width
     let arrow-mark-scale = 0.5
@@ -444,10 +450,18 @@
         let base-drop = 0.35 // gap below text baseline to start arrow
         let rect-count = 0
 
-        for arrow in arrows {
+        for (arrow-idx, arrow) in arrows.enumerate() {
           let is-dict = type(arrow) == dictionary
           let raw-from = if is-dict { arrow.at("from") } else { arrow.at(0) }
           let raw-to = if is-dict { arrow.at("to") } else { arrow.at(1) }
+          // A misspelled anchor used to drop the arrow silently.
+          for name in (raw-from, raw-to) {
+            if name not in name-to-pos {
+              let known = entries.filter(e => e.anchor != none).map(e => e.anchor)
+              panic("move(): arrow " + str(arrow-idx) + " refers to \"" + name
+                + "\", which is not in the sentence. Anchors: " + known.join(", "))
+            }
+          }
           let paint = if is-dict { arrow.at("color", default: _norm) } else { _norm }
           let dash-style = if is-dict { arrow.at("dash", default: "solid") } else { "solid" }
           let arrow-lw = if is-dict { arrow.at("line-width", default: 1.0) } else { 1.0 }
@@ -535,7 +549,8 @@
             }
 
             // Delink mark on horizontal bar
-            if (rect-count - 1) in delinks {
+            // Delinks count arrows in the order they are written in `arrows`.
+            if arrow-idx in delinks {
               let mid-x = (fx + tx) / 2
               _draw-delink(mid-x, bar-y, 1.0, 0.0, (paint: paint, thickness: a-sw))
             }
